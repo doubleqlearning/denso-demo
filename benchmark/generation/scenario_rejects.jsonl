@@ -1,0 +1,3 @@
+{"group_id": "g073", "chunk_ids": ["fx5_comm_p0817_c01", "fx5_comm_p0819_c01"], "errors": ["scenario 1: quote not found verbatim in fx5_comm_p0817_c01: 'Is the communication protocol (TCP/UDP) with the target device matching?'"]}
+{"group_id": "g087", "chunk_ids": ["omron_i4l_p0144_c01"], "errors": ["scenario 1: quote not found verbatim in omron_i4l_p0144_c01: 'The safety system failed on chan- nel 1 during the cyclic check of du- al-channe'", "scenario 2: bad expert fact type maintenance"]}
+{"group_id": "g166", "chunk_ids": ["omron_i4l_p0110_c01"], "errors": ["scenario 1: quote not found verbatim in omron_i4l_p0110_c01: '| 7, 20 | Emergency stop status channel 1 output | Internal contacts are closed '"]}

@@ -1,0 +1,42 @@
+# Only benchmark-portable failure mechanisms belong here. Asset identifiers in
+# the synthetic conversations are intentionally not a closed plant asset tree.
+keys:
+  failure_mode:
+    closed: true
+    description: >-
+      Mechanism behind the symptom, as established by the source. Null when
+      the cause is not established or the record is not about one failure.
+    values:
+      contamination:
+        aliases: [fouling, ingress]
+        description: dirt, oil, water or coolant on or in a part, sensor or medium
+      wear:
+        aliases: [degradation]
+        description: worn, fatigued or degraded parts, cables or tooling
+      misalignment:
+        description: parts out of position, alignment or fit
+      thermal_drift:
+        aliases: [thermal]
+        description: behavior that changes with temperature or warm-up
+      vibration:
+        aliases: [resonance]
+        description: resonance, imbalance or structural vibration
+      leakage_restriction:
+        aliases: [leak, leakage, restriction, blockage]
+        description: leaks, blocked flow or pressure or flow loss in a fluid circuit
+      electrical_fault:
+        aliases: [electrical]
+        description: wiring, connector, power, drive or communication faults
+      overload:
+        description: load or force beyond capacity, including jams
+      calibration_drift:
+        aliases: [calibration]
+        description: a measurement, map or reference that no longer matches reality
+      configuration_error:
+        aliases: [recipe error, setting error]
+        description: wrong recipe, parameter, program or setting, including workarounds
+      process_drift:
+        description: a process medium or recipe output drifting out of range
+      environmental_interference:
+        aliases: [environment]
+        description: light, reflection, ambient humidity or temperature disturbing equipment

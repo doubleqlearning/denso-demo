@@ -1,0 +1,137 @@
+{
+  "name": "factory-expert-knowhow-benchmark",
+  "generated_at": "2026-10-07T18:13:44+00:00",
+  "language": "en",
+  "seed": 42,
+  "scale": 1.0,
+  "documents": [
+    {
+      "doc_id": "omron_i4l",
+      "file": "i658_i4l_series_users_manual_en.pdf",
+      "title": "i4L Robots User's Manual",
+      "n_pages": 176,
+      "n_chunks": 114
+    },
+    {
+      "doc_id": "melservo_je",
+      "file": "sh030166engf.pdf",
+      "title": "MELSERVO-JE Servo amplifier INSTRUCTION MANUAL (TROUBLE SHOOTING)",
+      "n_pages": 92,
+      "n_chunks": 107
+    },
+    {
+      "doc_id": "fx5_comm",
+      "file": "sh082625engh.pdf",
+      "title": "MELSEC iQ-F FX5 User's Manual (Communication)",
+      "n_pages": 956,
+      "n_chunks": 846
+    }
+  ],
+  "n_chunks": 1067,
+  "n_scenarios": 195,
+  "n_conversations": 195,
+  "n_conversations_with_questions": 193,
+  "conversation_turns": {
+    "min": 7,
+    "mean": 13.9,
+    "max": 26
+  },
+  "conversation_words": {
+    "min": 204,
+    "mean": 370.8,
+    "max": 649
+  },
+  "conversation_controls": {
+    "length": {
+      "medium": 86,
+      "long": 49,
+      "short": 60
+    },
+    "difficulty": {
+      "direct": 60,
+      "noisy": 38,
+      "implicit": 48,
+      "correction_reference": 49
+    },
+    "num_speakers": {
+      "2": 139,
+      "3": 56
+    },
+    "irrelevant_ratio": {
+      "0.0": 111,
+      "0.2": 64,
+      "0.4": 20
+    }
+  },
+  "n_questions": 500,
+  "n_train": 100,
+  "n_test": 400,
+  "knowledge_source": {
+    "expert_only": 200,
+    "expert_and_docs": 150,
+    "docs_only": 150
+  },
+  "difficulty": {
+    "medium": 200,
+    "easy": 200,
+    "hard": 100
+  },
+  "cells": {
+    "all": {
+      "docs_only/easy": 80,
+      "docs_only/hard": 20,
+      "docs_only/medium": 50,
+      "expert_and_docs/easy": 20,
+      "expert_and_docs/hard": 50,
+      "expert_and_docs/medium": 80,
+      "expert_only/easy": 100,
+      "expert_only/hard": 30,
+      "expert_only/medium": 70
+    },
+    "train": {
+      "docs_only/easy": 14,
+      "docs_only/hard": 3,
+      "docs_only/medium": 9,
+      "expert_and_docs/easy": 5,
+      "expert_and_docs/hard": 10,
+      "expert_and_docs/medium": 16,
+      "expert_only/easy": 21,
+      "expert_only/hard": 7,
+      "expert_only/medium": 15
+    },
+    "test": {
+      "docs_only/easy": 66,
+      "docs_only/hard": 17,
+      "docs_only/medium": 41,
+      "expert_and_docs/easy": 15,
+      "expert_and_docs/hard": 40,
+      "expert_and_docs/medium": 64,
+      "expert_only/easy": 79,
+      "expert_only/hard": 23,
+      "expert_only/medium": 55
+    }
+  },
+  "question_type": {
+    "procedure": 130,
+    "causal": 43,
+    "diagnosis": 243,
+    "factual": 84
+  },
+  "correct_option": {
+    "A": 124,
+    "B": 130,
+    "C": 125,
+    "D": 121
+  },
+  "correct_option_strictly_longest": 0.236,
+  "questions_per_doc": {
+    "melservo_je": 170,
+    "omron_i4l": 147,
+    "fx5_comm": 183
+  },
+  "prompts": {
+    "generate_scenario.md": "42f3720ba578",
+    "generate_conversation.md": "a91fe6fc2a7b",
+    "generate_qa.md": "deae22723856"
+  }
+}

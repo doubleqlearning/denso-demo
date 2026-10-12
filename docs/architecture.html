@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Expert Knowledge Management Architecture</title>
+
+<style>
+  /* ==================================================================
+     TUNING KNOBS  — edit here, then refresh the page.
+     Add ?debug to the URL to outline (red) any node whose text overflows.
+     ================================================================== */
+  :root {
+    --fs-scale: 1.05;            /* multiplies EVERY font size below */
+
+    --fs-title: 30;           /* page title */
+    --fs-section: 22;         /* section heading */
+    --fs-section-sub: 14.5;   /* section subtitle */
+    --fs-node-title: 16;      /* node heading (bold) */
+    --fs-node-sub: 13.5;      /* node description / bullets */
+    --fs-kb-title: 19;        /* "Knowledge Base" inside the cylinder */
+    --fs-label: 12.5;         /* arrow labels */
+    --fs-group-title: 13;     /* dashed query group heading */
+    --fs-group-sub: 11.5;     /* dashed query group description */
+
+    --line-height: 1.22;      /* line spacing (× font size) */
+    --pad-x: 8;               /* min horizontal gap between text and node edge (px) */
+    --pad-y: 4;               /* min vertical gap between text and node edge (px) */
+
+    /* palette */
+    --blue:  #6c8ebf; --blue-fill:  #dae8fc;
+    --green: #82b366;
+    --orange:#d79b00;
+    --red:   #b85450; --red-fill:   #f8cecc;
+    --purple:#9673a6; --purple-fill:#e1d5e7;
+    --teal:  #5fb3ad;
+    --ink: #1f2d3d; --ink-soft: #4d5d6e;
+    --arrow-blue: #2a6ebb; --arrow-green: #2e8b57; --arrow-red: #d64545; --arrow-purple: #8a4fc0;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #f5f6f8; }
+  .diagram-wrapper { width: 100%; overflow-x: auto; }
+  svg {
+    display: block; width: 100%; max-width: 1860px; height: auto; margin: 0 auto;
+    background: #fff; border: 1px solid #dde3ea;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  text { text-anchor: middle; dominant-baseline: central; }
+  .start { text-anchor: start; }
+
+  /* font sizes (driven by the variables above) */
+  .title   { font-size: calc(var(--fs-title) * var(--fs-scale) * 1px); font-weight: 700; fill: #1f4e8c; }
+  .st      { font-size: calc(var(--fs-section) * var(--fs-scale) * 1px); font-weight: 700; text-anchor: start; }
+  .ss      { font-size: calc(var(--fs-section-sub) * var(--fs-scale) * 1px); fill: #5b6b7b; text-anchor: start; }
+  .t       { font-size: calc(var(--fs-node-title) * var(--fs-scale) * 1px); font-weight: 700; fill: var(--ink); }
+  .s       { font-size: calc(var(--fs-node-sub) * var(--fs-scale) * 1px); fill: var(--ink-soft); }
+  .kb      { font-size: calc(var(--fs-kb-title) * var(--fs-scale) * 1px); font-weight: 700; fill: var(--ink); }
+  .lb      { font-size: calc(var(--fs-label) * var(--fs-scale) * 1px); font-weight: 600; }
+  .gt      { font-size: calc(var(--fs-group-title) * var(--fs-scale) * 1px); font-weight: 700; fill: var(--arrow-green); }
+  .gs      { font-size: calc(var(--fs-group-sub) * var(--fs-scale) * 1px); fill: var(--arrow-green); }
+
+  /* sections */
+  .sec { stroke-width: 1.5; }
+  .sec.blue   { fill: #f1f6fc; stroke: var(--blue); }
+  .sec.green  { fill: #f3f9f1; stroke: var(--green); }
+  .sec.orange { fill: #fff6e9; stroke: var(--orange); }
+  .sec.teal   { fill: #eef9f8; stroke: var(--teal); }
+  .sec.purple { fill: #f8f3fc; stroke: var(--purple); stroke-dasharray: 7 4; }
+  .st.blue { fill: #1f4e8c; } .st.green { fill: #2d6a2d; }
+  .st.orange { fill: #a8531a; } .st.teal { fill: #1b6b68; } .st.purple { fill: #5b2d91; }
+
+  /* nodes */
+  .node { stroke-width: 1.5; }
+  .n-blue    { fill: var(--blue-fill);   stroke: var(--blue); }
+  .n-bluew   { fill: #fff;               stroke: var(--blue); }
+  .n-greenw  { fill: #fff;               stroke: var(--green); }
+  .n-orangew { fill: #fff;               stroke: var(--orange); }
+  .n-purplew { fill: #fff;               stroke: var(--purple); }
+  .n-red     { fill: var(--red-fill);    stroke: var(--red); }
+  .n-purple  { fill: var(--purple-fill); stroke: var(--purple); }
+  .node.overflow { stroke: #ff0000; stroke-width: 3; }
+
+  .grp { fill: none; stroke: var(--arrow-green); stroke-width: 1.5; stroke-dasharray: 7 5; }
+  .db, .db-top { stroke: var(--blue); stroke-width: 1.5; }
+  .db { fill: var(--blue-fill); } .db-top { fill: none; }
+
+  /* connectors */
+  .a { fill: none; stroke-width: 2; stroke-linejoin: round; }
+  .a-blue   { stroke: var(--arrow-blue);   marker-end: url(#h-blue); }
+  .a-green  { stroke: var(--arrow-green);  marker-end: url(#h-green); }
+  .a-red    { stroke: var(--arrow-red);    marker-end: url(#h-red); }
+  .a-purple { stroke: var(--arrow-purple); marker-end: url(#h-purple); }
+  .a.nohead { marker-end: none; }
+  .a.dashed { stroke-dasharray: 7 5; }
+  .l-blue { fill: var(--arrow-blue); } .l-green { fill: var(--arrow-green); }
+  .l-purple { fill: var(--arrow-purple); }
+</style>
+</head>
+
+<body>
+<div class="diagram-wrapper">
+<svg id="d" xmlns="http://www.w3.org/2000/svg">
+  <defs></defs>
+</svg>
+</div>
+
+<script>
+/* ====================================================================
+   LAYOUT  — plain numbers; every connector is derived from node rects.
+   ==================================================================== */
+const W = 1860;
+const TOP = 200, BOT = 930;            // main-row section top / bottom
+const QY = BOT + 80, QH = 280;         // query section
+const H = QY + QH + 20;
+
+/* ---------- helpers ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('d');
+svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+const cs = getComputedStyle(document.documentElement);
+const cssNum = n => parseFloat(cs.getPropertyValue(n));
+const SCALE = cssNum('--fs-scale');
+const fs = n => cssNum('--fs-' + n) * SCALE;
+const LH = cssNum('--line-height');
+const PADX = cssNum('--pad-x'), PADY = cssNum('--pad-y');
+const FAMILY = 'Helvetica, Arial, sans-serif';
+const ctx = document.createElement('canvas').getContext('2d');
+const textW = (s, size, bold) => { ctx.font = `${bold ? 700 : 400} ${size}px ${FAMILY}`; return ctx.measureText(s).width; };
+
+function el(tag, attrs = {}, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  svg.appendChild(e);
+  return e;
+}
+
+// Greedy word-wrap. Arrays are used as-is (explicit line breaks).
+function wrap(text, size, bold, maxW) {
+  if (Array.isArray(text)) return text;
+  const lines = []; let cur = '';
+  for (const w of String(text).split(' ')) {
+    const t = cur ? cur + ' ' + w : w;
+    if (cur && textW(t, size, bold) > maxW) { lines.push(cur); cur = w; } else cur = t;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+const N = {};                 // id -> {x,y,w,h,cx,cy}
+const checks = [];            // overflow checks, run after render
+const L = (id, dy = 0) => [N[id].x, N[id].cy + dy];
+const R = (id, dy = 0) => [N[id].x + N[id].w, N[id].cy + dy];
+const T = (id, dx = 0) => [N[id].cx + dx, N[id].y];
+const B = (id, dx = 0) => [N[id].cx + dx, N[id].y + N[id].h];
+
+/* ---------- primitives ---------- */
+function section(x, y, w, h, cls, title, sub) {
+  el('rect', { class: `sec ${cls}`, x, y, width: w, height: h, rx: 12 });
+  el('text', { class: `st ${cls}`, x: x + 20, y: y + 30 }, title);
+  el('text', { class: 'ss', x: x + 20, y: y + 55 }, sub);
+}
+
+function node(id, x, y, w, h, title, sub = [], cls = 'bluew') {
+  const tS = fs('node-title'), sS = fs('node-sub');
+  const maxW = w - 2 * PADX;
+  const tl = wrap(title, tS, true, maxW), sl = wrap(sub, sS, false, maxW);
+  const tH = tS * LH, sH = sS * LH, gap = sl.length ? tS * 0.3 : 0;
+  const total = tH * tl.length + gap + sH * sl.length;
+  let cy = y + (h - total) / 2;
+  const rect = el('rect', { class: `node n-${cls}`, x, y, width: w, height: h, rx: 8 });
+  const texts = [];
+  const cx = x + w / 2;
+  tl.forEach(l => { texts.push(el('text', { class: 't', x: cx, y: cy + tH / 2 }, l)); cy += tH; });
+  cy += gap;
+  sl.forEach(l => { texts.push(el('text', { class: 's', x: cx, y: cy + sH / 2 }, l)); cy += sH; });
+  N[id] = { x, y, w, h, cx, cy: y + h / 2 };
+  checks.push({ id, rect, texts, x, y, w, h });
+}
+
+function bullet(x, y, text) {
+  el('text', { class: 's start', x, y }, '•');
+  return el('text', { class: 's start', x: x + 13, y }, text);
+}
+
+function path(pts, kind = 'blue', o = {}) {
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join(' ');
+  el('path', { class: `a a-${kind}${o.dashed ? ' dashed' : ''}${o.nohead ? ' nohead' : ''}`, d });
+}
+
+function label(x, y, text, kind = 'blue', anchor = 'middle') {
+  el('text', { class: `lb l-${kind}${anchor === 'start' ? ' start' : ''}`, x, y }, text);
+}
+
+// vertical stack: nodes with given heights spread evenly between y0 and y1
+function stackY(heights, y0, y1) {
+  const gap = (y1 - y0 - heights.reduce((a, b) => a + b, 0)) / (heights.length - 1);
+  let y = y0; return heights.map(h => { const r = y; y += h + gap; return r; });
+}
+
+// arrow-head markers
+const defs = svg.querySelector('defs');
+for (const [k, c] of Object.entries({ blue: '--arrow-blue', green: '--arrow-green', red: '--arrow-red', purple: '--arrow-purple' })) {
+  const m = document.createElementNS(NS, 'marker');
+  Object.entries({ id: `h-${k}`, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 9, markerHeight: 9, markerUnits: 'userSpaceOnUse', orient: 'auto' })
+    .forEach(([a, v]) => m.setAttribute(a, v));
+  m.innerHTML = `<path d="M0 0 L10 5 L0 10 z" fill="${cs.getPropertyValue(c).trim()}"/>`;
+  defs.appendChild(m);
+}
+
+/* ====================================================================
+   DIAGRAM
+   ==================================================================== */
+el('text', { class: 'title', x: W / 2, y: 36 }, 'Architecture Diagram – Hệ thống quản lý tri thức chuyên gia');
+
+/* ---------- section frames ---------- */
+const DE_X = 1320, DE_W = W - 20 - DE_X;               // right-hand column
+const D_H = 335, E_Y = TOP + D_H + 30;
+section(20,  60,  W - 40, 110, 'purple', 'Khởi tạo tri thức (optional)', 'Ưu tiên dùng nếu có nguồn nền');
+section(20,  TOP, 260, BOT - TOP, 'blue',   'Nguồn đầu vào');
+section(320, TOP, 480, BOT - TOP, 'green',  'Xử lý đầu vào', 'Chuyển đổi dữ liệu thành dạng chuẩn');
+section(840, TOP, 400, BOT - TOP, 'orange', 'Structured Knowledge Processing', 'Chuẩn hóa, đối chiếu và cập nhật tri thức');
+section(DE_X, TOP, DE_W, D_H,     'green',  'Kho tri thức', 'Lưu trữ tri thức chuyên gia');
+section(DE_X, E_Y, DE_W, BOT - E_Y, 'teal', 'Aggregation & Reporting', 'Tổng hợp tri thức theo subject');
+
+/* ---------- optional bootstrap band ---------- */
+const BY = 115;
+node('sop',  360,  BY - 35, 260, 70, 'SOP Ingestor', ['Parse Machine / Job / Step', 'Làm base ngữ cảnh nếu có SOP'], 'purplew');
+node('seed', 680,  BY - 35, 260, 70, 'Seed Document Processor', ['Tài liệu vận hành nội bộ', 'Seed subject & initial knowledge'], 'purplew');
+node('reg',  1000, BY - 35, 260, 70, 'Subject Registry', ['Quản lý danh mục subject', '(tạo mới / cập nhật)'], 'purplew');
+path([R('sop'), L('seed')]);
+path([R('seed'), L('reg')]);
+
+/* ---------- A: inputs  (rows shared with the processors) ---------- */
+const ROW = [370, 550, 730], RH = 110;
+node('in1', 40, ROW[0] - RH / 2, 220, RH, 'Giọng nói chuyên gia', 'Trao đổi, chia sẻ kinh nghiệm');
+node('in2', 40, ROW[1] - RH / 2, 220, RH, 'Ghi chú viết tay / tài liệu', 'Biên bản, tài liệu, hình ảnh');
+node('in3', 40, ROW[2] - RH / 2, 220, RH, 'Metadata ngữ cảnh', ['QR / mã máy', 'Timestamp', 'Expert ID']);
+
+/* ---------- B: input processing ---------- */
+node('ifc', 340, ROW[0] - RH / 2, 100, ROW[2] - ROW[0] + RH, ['Input', 'Interface'], ['Tiếp nhận', 'và chuẩn hóa', 'dữ liệu'], 'blue');
+node('stt', 470, ROW[0] - RH / 2, 150, RH, 'STT', 'Giọng nói → văn bản', 'greenw');
+node('ocr', 470, ROW[1] - RH / 2, 150, RH, ['OCR / Document', 'Processor'], 'Trích xuất văn bản từ tài liệu, hình ảnh', 'greenw');
+node('mex', 470, ROW[2] - RH / 2, 150, RH, 'Metadata Extractor', 'Trích xuất metadata ngữ cảnh', 'greenw');
+node('raw', 650, ROW[1] - 85, 130, 170, ['Raw content', '+ metadata'], ['Văn bản, nội dung', 'và metadata gộp'], 'blue');
+node('obj', 600, BOT - 100, 180, 70, 'Object Storage', 'Raw conversation / artifact', 'blue');
+
+for (const [i, id] of ['in1', 'in2', 'in3'].entries()) {
+  path([[260, ROW[i]], [340, ROW[i]]]);                // source -> interface
+  path([[440, ROW[i]], [470, ROW[i]]]);                // interface -> processor
+}
+path([R('stt'), [635, ROW[0]], [635, ROW[1] - 40], L('raw', -40)]);
+path([R('ocr'), L('raw')]);
+path([R('mex'), [635, ROW[2]], [635, ROW[1] + 40], L('raw', 40)]);
+path([B('raw'), T('obj', N.raw.cx - N.obj.cx)]);
+label(N.raw.cx + 10, (N.raw.y + N.raw.h + N.obj.y) / 2, 'store artifact', 'blue', 'start');
+
+/* ---------- C: structured knowledge processing ---------- */
+const CX = 860, CW = 360, SPINE = 940;
+const cHeights = [76, 60, 60, 90, 60, 72];
+const cy = stackY(cHeights, TOP + 75, BOT - 30);
+node('ext', CX, cy[0], CW, cHeights[0], 'Knowledge Extractor', ['LLM → Knowledge Items', 'subject, type, claim, context, evidence'], 'orangew');
+node('sub', CX, cy[1], CW, cHeights[1], 'Subject Resolution', 'Match existing subject or create new subject', 'orangew');
+node('can', CX, cy[2], CW, cHeights[2], 'Candidate Matching', 'Field rules + candidate retrieval', 'orangew');
+node('cmp', CX, cy[3], 190, cHeights[3], 'Knowledge Comparison', 'Same / Compatible / Conflict', 'orangew');
+node('cas', CX + 230, cy[3], 130, cHeights[3], 'Case Builder', ['Group case-type', 'knowledge into', 'Case Card'], 'red');
+node('exp', CX, cy[4], CW, cHeights[4], 'Expert Review', 'Chuyên gia xác nhận subject, content, conflict', 'orangew');
+node('wri', CX, cy[5], CW, cHeights[5], 'Knowledge Writer', 'Insert / update knowledge + revision / history metadata', 'orangew');
+
+path([[N.raw.x + N.raw.w, N.raw.cy], [820, N.raw.cy], [820, N.ext.cy], L('ext')]);
+path([B('ext', SPINE - N.ext.cx), T('sub', SPINE - N.sub.cx)]);
+path([B('sub', SPINE - N.sub.cx), T('can', SPINE - N.can.cx)]);
+path([B('can', SPINE - N.can.cx), T('cmp', SPINE - N.cmp.cx)]);
+path([B('cmp', SPINE - N.cmp.cx), T('exp', SPINE - N.exp.cx)]);
+path([B('exp', SPINE - N.exp.cx), T('wri', SPINE - N.wri.cx)]);
+path([R('cmp'), L('cas')], 'red');
+path([B('cas'), T('exp', N.cas.cx - N.exp.cx)], 'red');
+
+/* ---------- D: knowledge base cylinder ---------- */
+const KB = { cx: DE_X + DE_W / 2, rx: 165, ry: 24, top: TOP + 92, rows: 7, rowH: 17 };
+KB.bot = KB.top + 200;
+const { cx: kcx, rx: krx, ry: kry, top: ktop, bot: kbot } = KB;
+el('path', { class: 'db', d: `M${kcx - krx} ${ktop} A${krx} ${kry} 0 0 1 ${kcx + krx} ${ktop} V${kbot} A${krx} ${kry} 0 0 1 ${kcx - krx} ${kbot} Z` });
+el('path', { class: 'db-top', d: `M${kcx - krx} ${ktop} A${krx} ${kry} 0 0 0 ${kcx + krx} ${ktop}` });
+el('text', { class: 'kb', x: kcx, y: ktop + 46 }, 'Knowledge Base');
+el('text', { class: 's',  x: kcx, y: ktop + 70 }, 'PostgreSQL + pgvector');
+const kbBullets = ['Subjects', 'Knowledge Items', 'Structured Subject Reports', 'Case Cards',
+                   'SOP links (optional)', 'evidence', 'revision / history'];
+kbBullets.forEach((l, i) => bullet(kcx - 100, ktop + 96 + KB.rowH * i, l));
+// y of the cylinder's top / bottom rim at horizontal offset dx from centre
+const rimTop = dx => ktop - kry * Math.sqrt(1 - (dx / krx) ** 2);
+const rimBot = dx => kbot + kry * Math.sqrt(1 - (dx / krx) ** 2);
+const KB_L = kcx - krx, KB_R = kcx + krx;
+
+/* ---------- E: aggregation & reporting ---------- */
+const EW = 460, EX = DE_X + (DE_W - EW) / 2;
+const e0 = E_Y + 68;
+node('chk', EX, e0,       EW, 58, 'Check data change', 're-process or not');
+node('gen', EX, e0 + 80,  EW, 58, 'Subject Report Generator', 'Generate structured report per subject');
+const SRY = e0 + 160, SRH = BOT - 24 - SRY;
+const srRect = el('rect', { class: 'node n-bluew', x: EX, y: SRY, width: EW, height: SRH, rx: 8 });
+N.rep = { x: EX, y: SRY, w: EW, h: SRH, cx: EX + EW / 2, cy: SRY + SRH / 2 };
+const srTexts = [el('text', { class: 't', x: EX + EW / 2, y: SRY + 20 }, 'Structured Subject Report')];
+const colL = ['Best Practices (optional)', 'Heuristics (optional)', 'Procedures (optional)', 'Known Cases (optional)'];
+const colR = ['Constraints / Conditions (optional)', 'Conflicts (optional)', 'Supporting Evidence (optional)'];
+const rowH = 17, rowY0 = SRY + 46;
+const rightW = Math.max(...colR.map(s => textW(s, fs('node-sub'), false))) + 13;
+colL.forEach((l, i) => srTexts.push(bullet(EX + 20, rowY0 + rowH * i, l)));
+colR.forEach((l, i) => srTexts.push(bullet(EX + EW - 16 - rightW, rowY0 + rowH * i, l)));
+checks.push({ id: 'rep', rect: srRect, texts: srTexts, x: EX, y: SRY, w: EW, h: SRH });
+
+const SPINE_E = kcx + 130;                              // right-hand spine, clear of the section title
+path([[SPINE_E, rimBot(130)], [SPINE_E, N.chk.y]]);
+path([B('chk', SPINE_E - N.chk.cx), T('gen', SPINE_E - N.gen.cx)]);
+path([B('gen', SPINE_E - N.gen.cx), T('rep', SPINE_E - N.rep.cx)]);
+path([[EX + EW, N.rep.cy], [EX + EW + 14, N.rep.cy], [EX + EW + 14, ktop + 68], [KB_R, ktop + 68]]);   // report -> KB
+
+/* Writer -> KB, bootstrap -> KB */
+const WK = 1270, DK = 1300;                              // lanes in the corridor between C and D/E
+path([R('wri'), [WK, N.wri.cy], [WK, ktop + 48], [KB_L, ktop + 48]]);
+path([R('reg'), [kcx + 100, BY], [kcx + 100, rimTop(100)]], 'purple', { dashed: true });
+label((R('reg')[0] + kcx + 100) / 2, BY - 12, 'bootstrap subjects / seed data (optional)', 'purple');
+
+/* ---------- query section ---------- */
+section(20, QY, W - 40, QH, 'blue', 'Truy vấn và tái sử dụng tri thức', 'Hỗ trợ người dùng tra cứu, phân tích và nhận báo cáo');
+const GY = QY + 38, GX = 930, GW = 280, GH = 222;
+const T1 = GY + 80 + 28, T2 = T1 + 72, MY = (T1 + T2) / 2;
+node('usr', 40,   MY - 55, 210, 110, 'Người dùng truy vấn', ['Voice / text', 'Kỹ sư, chuyên gia, quản lý'], 'purple');
+node('qst', 300,  MY - 40, 80, 80, 'STT', [], 'bluew');
+node('nlq', 430,  MY - 55, 170, 110, ['Natural-language', 'query'], 'Hiểu câu hỏi tự nhiên');
+node('orc', 650,  MY - 70, 210, 140, ['Query Orchestrator /', 'LLM tool calling'], ['Phân tích ý định,', 'lựa chọn công cụ phù hợp'], 'red');
+el('rect', { class: 'grp', x: GX, y: GY, width: GW, height: GH, rx: 8 });
+el('text', { class: 'gt', x: GX + GW / 2, y: GY + 20 }, 'Truy vấn trên Knowledge Base');
+['tùy câu hỏi, truy vấn trên', 'Knowledge Items (staging) hoặc', 'Structured Subject Reports (marts)']
+  .forEach((l, i) => el('text', { class: 'gs', x: GX + GW / 2, y: GY + 40 + i * fs('group-sub') * LH }, l));
+node('sql', GX + 20, T1 - 28, GW - 40, 56, 'Text-to-SQL', 'Truy vấn dữ liệu có cấu trúc');
+node('rag', GX + 20, T2 - 28, GW - 40, 56, 'RAG', 'Kết hợp ngữ cảnh và sinh đáp án');
+node('llm', 1290, MY - 55, 220, 110, ['LLM Answer / Report', 'Generation'], ['Tổng hợp, phân tích và', 'đính kèm nguồn trích dẫn']);
+node('ans', 1580, MY - 55, 230, 110, 'Câu trả lời / báo cáo', ['Subject report, relevant cases,', 'trích dẫn và', 'tài liệu tham khảo'], 'purple');
+
+path([R('usr'), L('qst')]);  label((R('usr')[0] + N.qst.x) / 2, MY - 12, 'voice', 'green');
+path([R('qst'), L('nlq')]);  label((R('qst')[0] + N.nlq.x) / 2, MY - 12, 'text');
+path([R('nlq'), L('orc')]);
+const TR = GX - 30;                                     // trunk between orchestrator and tools
+path([R('orc'), [TR, MY], [TR, T1], L('sql')]);
+path([R('orc'), [TR, MY], [TR, T2], L('rag')]);
+const MG = (GX + GW + N.llm.x) / 2;                     // merge line between tools and LLM
+path([R('sql'), [MG, T1], [MG, MY], L('llm')]);
+path([R('rag'), [MG, T2], [MG, MY]], 'blue', { nohead: true });
+path([R('llm'), L('ans')]);  label((R('llm')[0] + N.ans.x) / 2, MY - 12, 'report');
+
+/* dashed lookups through the corridor above the query section */
+const CORR = BOT + 45;
+path([[GX + GW / 2, GY], [GX + GW / 2, CORR], [DK, CORR], [DK, ktop + 128], [KB_L, ktop + 128]], 'green', { dashed: true });
+
+/* ---------- overflow check (outline red with ?debug) ---------- */
+const bad = [];
+for (const c of checks) {
+  for (const t of c.texts) {
+    const b = t.getBBox();
+    if (b.x < c.x + PADX || b.x + b.width > c.x + c.w - PADX || b.y < c.y + PADY || b.y + b.height > c.y + c.h - PADY) {
+      bad.push(`${c.id}: "${t.textContent}"`); c.rect.classList.add(location.search.includes('debug') ? 'overflow' : 'ov'); break;
+    }
+  }
+}
+if (bad.length) console.warn('Text overflow in:\n' + bad.join('\n'));
+window.__overflow = bad;
+</script>
+</body>
+</html>

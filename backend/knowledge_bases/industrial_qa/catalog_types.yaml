@@ -1,0 +1,58 @@
+# Curated equipment types of the industrial QA benchmark (see catalog.py).
+#
+# Families and component models come from the three manuals in
+# benchmark/public/corpus_chunks.jsonl; `catalog.py build` lists model names it
+# finds there or in the conversations that are not covered yet. Plant asset IDs
+# are not curated here: they are generated into catalog_assets.yaml.
+
+# Canonical machine_model of each equipment family. An asset ID is the
+# id_prefix followed by digits (FX5-PLC963), in any case or spacing.
+families:
+  FX5:
+    kind: PLC
+    manual: fx5_comm
+    id_prefix: FX5-PLC
+    aliases: [FX5 PLC, FX5 CPU, MELSEC iQ-F, MELSEC iQ-F FX5, iQ-F, iQ-F FX5]
+  MR-JE:
+    kind: servo amplifier
+    manual: melservo_je
+    id_prefix: MR-JE-AX
+    aliases: [MR-JE-A, MR-JE servo amplifier, MR-JE amplifier, MELSERVO-JE, MELSERVO JE]
+  i4L:
+    kind: SCARA robot
+    manual: omron_i4l
+    id_prefix: i4L-R
+    aliases: [Omron i4L, i4L robot, i4L SCARA, i4L SCARA robot]
+
+# Canonical component_model values, each implying its family.
+components:
+  FX5U: {family: FX5, kind: CPU module, aliases: [FX5U CPU]}
+  FX5UC: {family: FX5, kind: CPU module, aliases: [FX5UC CPU]}
+  FX5UJ: {family: FX5, kind: CPU module, aliases: [FX5UJ CPU]}
+  FX5S: {family: FX5, kind: CPU module, aliases: [FX5S CPU]}
+  FX5-ENET: {family: FX5, kind: Ethernet module, aliases: [FX5-ENET module]}
+  FX5-EIP: {family: FX5, kind: EtherNet/IP module, aliases: [FX5-ENET/IP]}
+  FX5-485-BD: {family: FX5, kind: RS-485 expansion board}
+  FX5-485ADP: {family: FX5, kind: RS-485 expansion adapter}
+  FX5-232-BD: {family: FX5, kind: RS-232C expansion board}
+  FX5-232ADP: {family: FX5, kind: RS-232C expansion adapter}
+  FX5-422-BD-GOT: {family: FX5, kind: RS-422 expansion board for a GOT}
+  FX5-CCLIEF: {family: FX5, kind: CC-Link IE Field Network module}
+  FX5-CCLGN-MS: {family: FX5, kind: CC-Link IE TSN module}
+  FX5-40SSC-G: {family: FX5, kind: simple motion module}
+  FX5-80SSC-G: {family: FX5, kind: simple motion module}
+  MR-HDP01: {family: MR-JE, kind: manual pulse generator}
+  HG-KN: {family: MR-JE, kind: servo motor, aliases: [HG-KN servo motor]}
+  HG-SN: {family: MR-JE, kind: servo motor, aliases: [HG-SN servo motor]}
+
+# Plant sites; a site written before a line ("Dong Nai Line 1") is split off.
+sites:
+  Hanoi: [Ha Noi, Plant Hanoi, Hanoi plant]
+  Hai Phong: [Haiphong, Plant Hai Phong, Hai Phong plant]
+  Dong Nai: [Plant Dong Nai, Dong Nai plant]
+  Binh Duong: [Plant Binh Duong, Binh Duong plant]
+  Bac Ninh: [Plant Bac Ninh, Bac Ninh plant]
+  Da Nang: [Danang, Plant Da Nang, Da Nang plant]
+
+# Processes of "<process> cell <letter>" stations.
+processes: [Assembly, Dispensing, Inspection, Machining, Packaging, Palletizing]

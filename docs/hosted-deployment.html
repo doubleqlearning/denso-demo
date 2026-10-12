@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Factory Knowledge Platform — Hosted Deployment</title>
+  <style>
+    :root { color-scheme:light; --ink:#121a60; --text:#526b99; --blue:#159cff; --line:#dceefd; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:10px 14px 14px; background:#fff; color:var(--ink); font-family:Arial,Helvetica,sans-serif; }
+    .diagram { max-width:2048px; margin:auto; font-size:clamp(12px,.97vw,20px); }
+    .symbols { position:absolute; width:0; height:0; overflow:hidden; }
+    .icon { width:2.3em; height:2.3em; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .top-row { display:grid; grid-template-columns:1.65fr 1.12fr 1fr; gap:.85em; }
+    .bottom-row { display:grid; grid-template-columns:repeat(4,1fr); gap:.85em; margin-top:.9em; }
+    .panel { position:relative; min-width:0; border:1.5px solid #d7f0ff; border-radius:1.1em; background:linear-gradient(145deg,#e9f7ff,#f6fbff); }
+    .top-panel { padding:.65em .85em .8em; min-height:20.5em; display:flex; flex-direction:column; }
+    .heading { display:flex; align-items:flex-start; gap:1.1em; }
+    .number { display:grid; place-items:center; width:2.35em; height:2.35em; border-radius:50%; background:linear-gradient(145deg,#42b7ff,#179afa); color:#fff; flex:none; font-weight:700; }
+    .number span { font-size:1.6em; }
+    h2 { font-size:1.55em; line-height:1.18; margin:.1em 0 .17em; letter-spacing:-.025em; }
+    .heading p { margin:0; font-size:1.04em; line-height:1.22; color:var(--text); }
+    .connector { position:absolute; width:2.15em; height:2.15em; right:-1.55em; top:39%; z-index:3; color:#24a9f4; }
+    .connector .icon { width:100%; height:100%; }
+    .device-grid { flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; gap:.65em; align-items:stretch; padding:1em 0 0; }
+    .device { min-width:0; text-align:center; padding:.55em .5em; border:1px solid #dff1ff; border-radius:1em; background:#ffffffb8; }
+    .device-art { display:block; width:100%; height:7.5em; overflow:visible; }
+    .device h3 { font-size:1.03em; margin:.4em 0 .4em; line-height:1.15; }
+    .device p { color:var(--text); font-size:.9em; letter-spacing:-.01em; line-height:1.22; margin:0; }
+    .hosted .heading { position:relative; z-index:1; margin-bottom:.2em; }
+    .cloud-services { position:relative; flex:1; display:flex; flex-direction:column; justify-content:flex-end; padding:.35em .2em 0; }
+    .cloud-outline { position:absolute; inset:-.65em -.5em -.7em; width:calc(100% + 1em); height:calc(100% + 1.35em); fill:#ffffffbf; stroke:#dcf3ff; stroke-width:1.5; }
+    .gpu { position:relative; text-align:center; margin:.4em 0 .5em; }
+    .gpu-art { display:block; width:17em; max-width:75%; height:3.6em; margin:auto; }
+    .gpu h3 { font-size:1.02em; margin:.05em 0; }
+    .gpu p { font-size:1.02em; color:var(--text); margin:0; }
+    .services { position:relative; display:grid; grid-template-columns:1fr 1.12fr 1fr 1.08fr; gap:.8em; }
+    .service { position:relative; text-align:center; padding:.3em .2em 0; min-width:0; border:1px solid #d4efff; border-bottom:0; border-radius:1em 1em .7em .7em; background:linear-gradient(#eff9ff,#ffffff8c); }
+    .service:not(:last-child)::after { content:""; position:absolute; right:-.63em; top:1.25em; border-left:.45em solid #bce8ff; border-top:.3em solid transparent; border-bottom:.3em solid transparent; }
+    .service-icon { width:3.1em; height:3.1em; display:grid; place-items:center; margin:0 auto .3em; border-radius:50%; background:#e2f5ff; color:#169ffd; }
+    .service-icon .icon { width:2.25em; height:2.25em; }
+    .service h4 { font-size:.83em; letter-spacing:-.02em; line-height:1.18; margin:0; padding-bottom:.3em; }
+    .platform .heading { margin-bottom:.9em; }
+    .platform-services { flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; gap:.7em; padding:.75em .45em; border:1.5px solid #d0edff; border-radius:.85em; background:#ffffff80; }
+    .platform-service { position:relative; text-align:center; min-width:0; }
+    .platform-service:not(:last-child)::after { content:""; position:absolute; right:-.65em; top:1.2em; border-left:.45em solid #c1e7fb; border-top:.45em solid transparent; border-bottom:.45em solid transparent; }
+    .platform-icon { display:grid; place-items:center; margin:0 auto .45em; width:3.7em; height:3.7em; color:#179eff; }
+    .platform-icon.storage { background:#e0f3ff; border-radius:50%; }
+    .platform-icon .icon { width:3.05em; height:3.05em; }
+    .platform-service h3 { font-size:.92em; line-height:1.25; margin:0 0 .55em; }
+    .platform-service p { font-size:.95em; line-height:1.2; color:var(--text); margin:0; }
+    .detail { font-size:.9em; min-height:25em; padding:.55em .9em .8em; background:linear-gradient(#eaf7ff 0,#f8fcff 20%,#fff 100%); }
+    .detail .heading { gap:1.1em; margin-bottom:.5em; }
+    .detail .number { width:3.45em; height:3.45em; background:#c5ecff; color:#149ef4; }
+    .detail .number span { font-size:1.6em; }
+    .detail h2 { font-size:1.55em; margin:.2em 0 .2em; }
+    .detail .heading p { font-size:.96em; }
+    .infrastructure { background:linear-gradient(#e4f8fb 0,#f8fcff 22%,#fff 100%); }
+    .infrastructure .number { background:#c7f1f3; color:#149ca5; }
+    .hosted-label { color:#2d94a2; font-size:.94em; }
+    .performance .number { background:#c6e6ff; color:#1689f4; }
+    .performance .heading p { font-size:.91em; letter-spacing:-.025em; }
+    .cost { background:linear-gradient(#efedff 0,#fafaff 22%,#fff 100%); border-color:#ececff; }
+    .cost .number { background:#dcd8ff; color:#5a5cf1; }
+    .cost h2 { font-size:1.39em; }
+    .cost-label { color:#625aec; font-size:.82em; white-space:nowrap; }
+    .detail-body { background:#ffffff8c; border-radius:1em; padding:.35em 0 0; }
+    .deployment-list { display:grid; gap:.75em; padding:.3em .1em; }
+    .deployment-item { display:flex; align-items:flex-start; gap:1.1em; }
+    .disc { display:grid; place-items:center; flex:none; width:3.65em; height:3.65em; border-radius:50%; background:linear-gradient(130deg,#dff4ff,#effaff); color:#119ff8; }
+    .disc .icon { width:2.35em; height:2.35em; }
+    .deployment-item h3 { font-size:1.06em; line-height:1.2; margin:.3em 0 .25em; }
+    .deployment-item p { font-size:.99em; color:var(--text); line-height:1.25; margin:0; }
+    table { width:100%; border-collapse:collapse; color:var(--text); font-size:.94em; line-height:1.22; }
+    th { color:var(--ink); font-weight:700; text-align:left; }
+    th,td { vertical-align:middle; padding:.48em .55em; }
+    .infra-table { margin-top:.1em; }
+    .infra-table thead { background:#f3f8fd; }
+    .infra-table th { font-size:.95em; }
+    .infra-table tr { border-bottom:1px solid var(--line); }
+    .infra-table tr:last-child { border-bottom:0; }
+    .infra-table td+td,.infra-table th+th { border-left:1px solid var(--line); }
+    .infra-table th:first-child { width:40%; }
+    .component-label { font-size:.94em; display:flex; align-items:center; gap:.8em; color:var(--ink); font-weight:700; }
+    .component-label .icon { width:1.9em; height:1.9em; color:#204d8f; }
+    .infra-table tbody td { padding:.65em .55em; }
+    .subsection { display:flex; align-items:flex-start; gap:.6em; margin:.3em 0 .8em; }
+    .subsection > .icon { color:#198efa; width:1.7em; height:1.7em; margin-top:.05em; }
+    .subsection-content { flex:1; min-width:0; }
+    .subsection h3 { font-size:1.02em; margin:.15em 0 .4em; line-height:1.2; }
+    .subsection h3 span { font-weight:400; }
+    .metric-table { overflow:hidden; border-radius:.65em; font-size:.93em; }
+    .metric-table tr:nth-child(odd) { background:#f0f7fd; }
+    .metric-table td { padding:.32em .65em; }
+    .metric-table td+td { border-left:1px solid #e3eef9; color:#34447f; font-weight:700; width:40%; }
+    .metric-table .regular { font-weight:400; }
+    .performance .metric-table td+td { width:43%; white-space:nowrap; }
+    .scaling-note { display:flex; align-items:flex-start; gap:.85em; color:var(--text); font-size:.94em; line-height:1.25; margin:.4em .05em 0; }
+    .scaling-note .icon { color:#199ffc; width:2.25em; height:2.25em; }
+    .scaling-note p { margin:0; }
+    .cost .subsection { gap:.6em; margin-bottom:.75em; }
+    .cost .subsection > .icon { color:#6373fb; }
+    .cost .subsection h3 { font-size:1em; }
+    .cost-table { font-size:.88em; }
+    .cost-table td { padding:.26em .4em; }
+    .cost-table td+td { width:34%; font-weight:400; }
+    .cost-table tr.total td { color:#243678; font-weight:700; }
+    .cost .scaling-note { font-size:.88em; margin:.1em 0 0; gap:.65em; }
+    .cost .scaling-note .icon { color:#686afa; width:2em; height:2em; }
+    .cost .scaling-note h3 { color:var(--ink); font-size:1.05em; margin:0 0 .2em; }
+    @media (max-width:1100px) {
+      .diagram { max-width:850px; font-size:clamp(14px,1.8vw,18px); }
+      .top-row { grid-template-columns:1fr; gap:1.7em; }
+      .bottom-row { grid-template-columns:1fr 1fr; gap:1em; }
+      .top-panel { min-height:20em; }
+      .top-panel > .connector { top:auto; bottom:-1.9em; right:calc(50% - 1em); transform:rotate(90deg); }
+      .cloud-services { min-height:16em; }
+      .platform-services { min-height:12em; }
+      .detail { font-size:1em; }
+    }
+    @media (max-width:650px) {
+      body { padding:10px; }
+      .diagram { font-size:14px; }
+      .device-grid { grid-template-columns:1fr; }
+      .device { display:flex; align-items:center; gap:.65em; text-align:left; }
+      .device-art { width:40%; height:8em; flex:none; }
+      .device-copy { flex:1; min-width:0; }
+      .device p { font-size:.92em; }
+      .device p br { display:none; }
+      .device p br::after { content:" "; }
+      .device h3 { font-size:1em; }
+      .top-panel { min-height:0; }
+      .cloud-services { min-height:24em; }
+      .services { grid-template-columns:1fr 1fr; gap:.55em; }
+      .service:nth-child(2)::after { display:none; }
+      .service h4 { font-size:.95em; }
+      .bottom-row { grid-template-columns:1fr; margin-top:1em; }
+      .detail { min-height:0; padding-bottom:1em; }
+      .detail .heading { gap:.8em; }
+      .cost-label { white-space:normal; }
+      .performance .metric-table { font-size:.86em; }
+    }
+    @media print {
+      @page { size:A3 landscape; margin:8mm; }
+      body { padding:0; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .diagram { font-size:13px; }
+      .top-row { grid-template-columns:1.65fr 1.12fr 1fr; gap:.85em; }
+      .bottom-row { grid-template-columns:repeat(4,1fr); gap:.85em; margin-top:.9em; }
+      .panel { break-inside:avoid; }
+      .top-panel { min-height:20.5em; }
+      .top-panel > .connector { top:39%; bottom:auto; right:-1.55em; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <linearGradient id="azure" x2="0" y2="1"><stop stop-color="#73d6ff"/><stop offset="1" stop-color="#187ff5"/></linearGradient>
+    <linearGradient id="screen-frame" x2="1" y2="1"><stop stop-color="#445265"/><stop offset="1" stop-color="#101b2e"/></linearGradient>
+    <linearGradient id="helmet" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#a7c5e3"/></linearGradient>
+    <symbol id="arrow" viewBox="0 0 40 40"><path d="M5 20h28m-10-10 10 10-10 10" stroke-width="3"/></symbol>
+    <symbol id="sync" viewBox="0 0 64 32"><path d="M3 16h58M12 8l-9 8 9 8m40-16 9 8-9 8" stroke-dasharray="5 4" stroke-width="2.5"/></symbol>
+    <symbol id="cloud" viewBox="0 0 48 40"><path d="M12 34a10 10 0 0 1-2-20 14 14 0 0 1 27-2 11 11 0 0 1 0 22z"/></symbol>
+    <symbol id="database" viewBox="0 0 40 44"><ellipse cx="20" cy="8" rx="15" ry="6"/><path d="M5 8v27c0 8 30 8 30 0V8M5 17c0 8 30 8 30 0M5 26c0 8 30 8 30 0"/></symbol>
+    <symbol id="database-solid" viewBox="0 0 48 56"><path d="M5 10v35c0 12 38 12 38 0V10" fill="url(#azure)" stroke="#198eee" stroke-width="1"/><ellipse cx="24" cy="10" rx="19" ry="8" fill="#6acbff" stroke="#b7eaff"/><path d="M5 22c0 11 38 11 38 0M5 34c0 11 38 11 38 0" stroke="#c5efff" stroke-width="1.4"/></symbol>
+    <symbol id="file" viewBox="0 0 40 44"><path d="M8 2h18l10 10v29H8z" fill="url(#azure)" stroke="none"/><path d="M26 2v10h10M13 32l6-8 5 5 4-5 5 8" stroke="white" stroke-width="1.5"/><circle cx="17" cy="18" r="2" fill="white" stroke="none"/></symbol>
+    <symbol id="gear" viewBox="0 0 40 40"><path d="m15 2-1 4-4 2-4-1-4 7 3 3v6l-3 3 4 7 4-1 4 2 1 4h10l1-4 4-2 4 1 4-7-3-3v-6l3-3-4-7-4 1-4-2-1-4z" fill="currentColor" stroke="none"/><circle cx="20" cy="20" r="8" fill="white" stroke="none"/><path d="M20 16v8m-4-4h8" stroke-width="2.2"/></symbol>
+    <symbol id="wave" viewBox="0 0 40 40"><path d="M3 17v6m8-14v23m9-30v36m9-26v17m8-13v8" stroke-width="4.5"/></symbol>
+    <symbol id="brain" viewBox="0 0 40 44"><path d="M18 5c-5-4-10 0-10 4-7 0-9 7-5 11-5 5-3 12 3 14-1 7 8 12 12 5zm4 0c5-4 10 0 10 4 7 0 9 7 5 11 5 5 3 12-3 14 1 7-8 12-12 5zM11 11c-5 1-3 6 0 7m-1 6c-5 1-5 6-1 7m4-8c4 1 4 5 1 7m-1 7v-4m16-22c5 1 3 6 0 7m1 6c5 1 5 6 1 7m-4-8c-4 1-4 5-1 7m1 7v-4"/></symbol>
+    <symbol id="servers" viewBox="0 0 44 44"><rect x="4" y="3" width="36" height="10" rx="2"/><rect x="4" y="17" width="36" height="10" rx="2"/><rect x="4" y="31" width="36" height="10" rx="2"/><path d="M10 8h10m-10 14h10m-10 14h10m12-28h1m-1 14h1m-1 14h1"/></symbol>
+    <symbol id="laptop" viewBox="0 0 48 40"><rect x="7" y="4" width="34" height="25" rx="1"/><path d="M7 29 1 35h46l-6-6M17 35h14"/></symbol>
+    <symbol id="network" viewBox="0 0 44 44"><circle cx="10" cy="22" r="6"/><circle cx="33" cy="8" r="6"/><circle cx="33" cy="36" r="6"/><path d="m15 18 13-7M15 26l13 7"/></symbol>
+    <symbol id="shield" viewBox="0 0 44 48"><path d="M22 3c7 5 12 6 17 7v14c0 10-8 16-17 21C13 40 5 34 5 24V10c5-1 10-2 17-7z" fill="#9fe1ff"/><path d="m13 24 6 6 13-14" stroke-width="3"/></symbol>
+    <symbol id="clock" viewBox="0 0 40 44"><circle cx="20" cy="25" r="15"/><path d="M20 14v12l6 4M15 3h10m-5 0v7M8 7l-4 5m28-5 4 5"/></symbol>
+    <symbol id="people" viewBox="0 0 44 40"><circle cx="22" cy="10" r="5" fill="currentColor" stroke="none"/><circle cx="9" cy="13" r="4" fill="currentColor" stroke="none"/><circle cx="35" cy="13" r="4" fill="currentColor" stroke="none"/><path d="M12 36V25a10 10 0 0 1 20 0v11zM9 22a8 8 0 0 0-8 8v5h8m26-13a8 8 0 0 1 8 8v5h-8" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="trend" viewBox="0 0 44 40"><path d="m3 34 12-13 8 7L40 8M28 8h12v12" stroke-width="3"/></symbol>
+    <symbol id="bars" viewBox="0 0 40 40"><path d="M8 34V22m12 12V14m12 20V4" stroke-width="7" stroke-linecap="butt"/></symbol>
+    <symbol id="database-cost" viewBox="0 0 44 44"><use href="#database" x="0" y="0" width="34" height="40"/><circle cx="35" cy="29" r="3"/><circle cx="35" cy="36" r="3"/><path d="M39 27v11"/></symbol>
+  </defs></svg>
+
+  <!-- Proposed deployment illustration; figures reproduced from the supplied reference. -->
+  <main class="diagram" aria-label="Factory knowledge platform hosted deployment architecture and specifications">
+    <div class="top-row">
+      <section class="panel top-panel devices" aria-labelledby="devices-title">
+        <header class="heading"><div class="number"><span>1</span></div><div><h2 id="devices-title">Factory Devices</h2><p>Capture and access knowledge on the shop floor</p></div></header>
+        <div class="device-grid">
+          <article class="device"><svg class="device-art" viewBox="0 0 240 150" role="img" aria-label="Factory worker using a tablet to capture voice, images and notes">
+              <defs><clipPath id="mobile-factory"><rect x="46" y="12" width="145" height="126" rx="8"/></clipPath></defs>
+              <rect x="14" y="10" width="178" height="128" rx="10" fill="#edf7ff"/>
+              <image href="assets/knowledge-flow/factory.jpg" x="46" y="12" width="145" height="126" preserveAspectRatio="xMidYMid slice" clip-path="url(#mobile-factory)" opacity=".4"/>
+              <g transform="translate(0 5) scale(.78)"><g stroke-linecap="round" stroke-linejoin="round">
+                <!-- Neck, work jacket and collar. -->
+                <path d="M65 77v19l15 14 14-17-6-18z" fill="#edb48e"/>
+                <path d="M17 166v-43c0-13 8-22 22-27l24-8 17 15 15-11 17 10c13 9 17 24 17 40v24z" fill="#8bbaf2" stroke="#6799d3" stroke-width="1.5"/>
+                <path d="m63 88-7 17 18 12 6-14m15-11 5 14-15 11-5-14" fill="#b3d3f8" stroke="#6799d3" stroke-width="1.4"/>
+                <path d="M80 117v49M31 123h25v23H31z" fill="none" stroke="#6799d3" stroke-width="1.4"/>
+                <path d="M31 129h25M85 131h2m-2 14h2" fill="none" stroke="#6799d3" stroke-width="1.4"/>
+                <!-- Side profile: the face and ear sit below the helmet brim. -->
+                <path d="M58 44h34l5 12v9l6 7-7 3v9c0 7-5 12-12 12L69 89 58 72z" fill="#f6c9a5" stroke="#dfad87" stroke-width="1.1"/>
+                <path d="M56 43h26l-6 12-9 5v14l-8-3-5-14z" fill="#29465c"/>
+                <path d="M65 62c-8-3-10 11-3 14l4-2" fill="#f6c9a5" stroke="#dfad87" stroke-width="1.1"/>
+                <path d="M62 66q-3 1-1 5M87 61h4m1 19h4" fill="none" stroke="#a97556" stroke-width="1.2"/>
+                <!-- A fitted hard hat with a separate brim and two molded ribs. -->
+                <path d="M47 43c0-21 10-34 27-34s29 13 30 34z" fill="url(#helmet)" stroke="#acc7e1" stroke-width="1.4"/>
+                <path d="M68 12c-6 7-9 17-9 28m21-28c6 7 9 17 9 28" fill="none" stroke="#c0d4e7" stroke-width="1.7"/>
+                <path d="M45 42h61v7H47l-4-3z" fill="#d8e7f3" stroke="#a9c5df" stroke-width="1.2"/>
+                <!-- Bent forearm, palm behind the phone, and a visible thumb. -->
+                <path d="m108 141 15-36 1-14c0-4 3-6 6-5l9 4c4 2 5 6 3 10l-6 13-9 36z" fill="#f6c9a5" stroke="#dfad87" stroke-width="1.2"/>
+                <g transform="rotate(10 132 84)">
+                  <rect x="117" y="52" width="33" height="51" rx="4" fill="#243f59" stroke="#172e43" stroke-width="1.2"/>
+                  <rect x="121" y="59" width="25" height="36" rx="1.5" fill="#a8e1ff"/>
+                  <path d="M130 64h5" stroke="#7798b4" stroke-width="1.2"/>
+                  <path d="M127 81v4m3-8v12m3-15v17m3-12v8m3-5v2" fill="none" stroke="#298fd2" stroke-width="1.4"/>
+                  <circle cx="132.5" cy="99.5" r="1.2" fill="#829fb7"/>
+                </g>
+                <path d="M137 91c2-3 6-2 6 1l-2 10c-1 4-4 6-7 5" fill="#f6c9a5" stroke="#dfad87" stroke-width="1.2"/>
+                <path d="m103 126 26 11-10 24c-3 6-10 7-15 3l-12-13c-4-5-4-12-1-17l4-7c2-3 5-3 8-1z" fill="#9cc6f6" stroke="#6799d3" stroke-width="1.5"/>
+                <path d="m102 127 25 11" fill="none" stroke="#d0e5fc" stroke-width="2.5"/>
+              </g>
+            </g>
+              <g fill="#e2f5ff"><circle cx="220" cy="28" r="20"/><circle cx="220" cy="75" r="20"/><circle cx="220" cy="122" r="20"/></g>
+              <g fill="none" stroke="#119ff8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="215" y="16" width="10" height="18" rx="5"/><path d="M211 27v3a9 9 0 0 0 18 0v-3m-9 12v5m-5 0h10"/>
+                <rect x="206" y="67" width="28" height="19" rx="3"/><path d="m213 67 3-5h8l3 5"/><circle cx="220" cy="76.5" r="5"/>
+                <rect x="210" y="108" width="20" height="28" rx="2"/><path d="M214 115h12m-12 6h12m-12 6h12"/>
+              </g>
+            </svg><div class="device-copy"><h3>Mobile / Tablet</h3><p>Capture voice, image/photo<br> and quick field input<br> (app or browser)</p></div></article>
+          <article class="device"><svg class="device-art" viewBox="0 0 190 175" role="img" aria-label="Laptop displaying the knowledge platform web interface">
+              <rect x="22" y="30" width="150" height="110" rx="7" fill="url(#screen-frame)" stroke="#76869b" stroke-width="1.5"/><rect x="29" y="38" width="136" height="95" fill="#fff"/><rect x="29" y="38" width="136" height="7" fill="#e6f1fa"/><rect x="31" y="48" width="26" height="82" fill="#f1f8ff"/>
+              <g fill="#4caaff"><rect x="34" y="51" width="19" height="8" rx="1"/><rect x="34" y="62" width="19" height="8" rx="1"/></g><g stroke="#c6e1f3" stroke-width="2"><path d="M35 77h14m-14 9h14m-14 9h14m-14 9h14m-14 9h14M64 54h82m-82 8h48m-48 14h88m-88 8h76m-76 13h88m-88 9h59m-59 14h88"/></g><g fill="#d9efff"><rect x="66" y="69" width="8" height="6"/><rect x="66" y="91" width="8" height="6"/><rect x="66" y="114" width="8" height="6"/></g>
+              <image href="assets/knowledge-flow/factory.jpg" x="118" y="70" width="40" height="30" preserveAspectRatio="xMidYMid slice"/><path d="M22 140h150l16 12c0 4-4 5-9 5H11c-5 0-9-1-9-5z" fill="#8195ae" stroke="#61788f"/><path d="M9 150h172M77 143h39l4 5H72z" fill="#b6c6d9" stroke="#445e7a" stroke-width="1"/>
+            </svg><div class="device-copy"><h3>Workstation / Laptop</h3><p>Enter and review high-quality<br> knowledge, access dashboard<br> and upload documents<br> (web)</p></div></article>
+          <article class="device"><svg class="device-art" viewBox="0 0 240 150" role="img" aria-label="Illustrative QR code identifying a factory machine and mapping it to context">
+              <g stroke-linejoin="round">
+                <ellipse cx="170" cy="132" rx="56" ry="5" fill="#dbe8f1"/>
+                <path d="m141 29 48-10 31 16-48 11z" fill="#dce7ef" stroke="#b8cad8"/>
+                <path d="m141 29 31 17v83l-31-17z" fill="#a7bac9"/><path d="m172 46 48-11v82l-48 12z" fill="#c1cfdb"/>
+                <path d="m156 36 23-5 20 10-23 5z" fill="#f0f5fa"/>
+                <path d="m183 57 25-6v47l-25 6z" fill="#edf7fc" stroke="#9cb5c9"/><path d="m187 63 17-4v20l-17 4z" fill="#a2d3e9"/>
+                <path d="m152 51 10 5v26l-10-5z" fill="#dceaf3"/><path d="m154 56 6 3v11l-6-3z" fill="#92b5cf"/>
+                <path d="M180 21V8h22v13" fill="#b3cadb"/><rect x="174" y="2" width="32" height="19" rx="2" fill="#dce8f1" stroke="#b4c9dc"/><rect x="178" y="5" width="24" height="12" fill="#8dc0de"/><path d="M190 7v8m-4-6v5m8-6v7" stroke="#5fa5d1"/>
+                <rect x="9" y="21" width="91" height="91" rx="12" fill="#fff" stroke="#b6e7ff"/>
+                <svg x="13" y="25" width="83" height="83" viewBox="0 0 33 33"><path d="M4 4h1v1h-1z M5 4h1v1h-1z M6 4h1v1h-1z M7 4h1v1h-1z M8 4h1v1h-1z M9 4h1v1h-1z M10 4h1v1h-1z M12 4h1v1h-1z M15 4h1v1h-1z M16 4h1v1h-1z M18 4h1v1h-1z M22 4h1v1h-1z M23 4h1v1h-1z M24 4h1v1h-1z M25 4h1v1h-1z M26 4h1v1h-1z M27 4h1v1h-1z M28 4h1v1h-1z M4 5h1v1h-1z M10 5h1v1h-1z M12 5h1v1h-1z M13 5h1v1h-1z M14 5h1v1h-1z M16 5h1v1h-1z M17 5h1v1h-1z M18 5h1v1h-1z M20 5h1v1h-1z M22 5h1v1h-1z M28 5h1v1h-1z M4 6h1v1h-1z M6 6h1v1h-1z M7 6h1v1h-1z M8 6h1v1h-1z M10 6h1v1h-1z M14 6h1v1h-1z M15 6h1v1h-1z M16 6h1v1h-1z M17 6h1v1h-1z M18 6h1v1h-1z M19 6h1v1h-1z M20 6h1v1h-1z M22 6h1v1h-1z M24 6h1v1h-1z M25 6h1v1h-1z M26 6h1v1h-1z M28 6h1v1h-1z M4 7h1v1h-1z M6 7h1v1h-1z M7 7h1v1h-1z M8 7h1v1h-1z M10 7h1v1h-1z M14 7h1v1h-1z M17 7h1v1h-1z M18 7h1v1h-1z M19 7h1v1h-1z M22 7h1v1h-1z M24 7h1v1h-1z M25 7h1v1h-1z M26 7h1v1h-1z M28 7h1v1h-1z M4 8h1v1h-1z M6 8h1v1h-1z M7 8h1v1h-1z M8 8h1v1h-1z M10 8h1v1h-1z M12 8h1v1h-1z M13 8h1v1h-1z M14 8h1v1h-1z M15 8h1v1h-1z M17 8h1v1h-1z M18 8h1v1h-1z M22 8h1v1h-1z M24 8h1v1h-1z M25 8h1v1h-1z M26 8h1v1h-1z M28 8h1v1h-1z M4 9h1v1h-1z M10 9h1v1h-1z M12 9h1v1h-1z M15 9h1v1h-1z M18 9h1v1h-1z M22 9h1v1h-1z M28 9h1v1h-1z M4 10h1v1h-1z M5 10h1v1h-1z M6 10h1v1h-1z M7 10h1v1h-1z M8 10h1v1h-1z M9 10h1v1h-1z M10 10h1v1h-1z M12 10h1v1h-1z M14 10h1v1h-1z M16 10h1v1h-1z M18 10h1v1h-1z M20 10h1v1h-1z M22 10h1v1h-1z M23 10h1v1h-1z M24 10h1v1h-1z M25 10h1v1h-1z M26 10h1v1h-1z M27 10h1v1h-1z M28 10h1v1h-1z M12 11h1v1h-1z M14 11h1v1h-1z M15 11h1v1h-1z M16 11h1v1h-1z M18 11h1v1h-1z M4 12h1v1h-1z M5 12h1v1h-1z M6 12h1v1h-1z M9 12h1v1h-1z M10 12h1v1h-1z M12 12h1v1h-1z M13 12h1v1h-1z M14 12h1v1h-1z M18 12h1v1h-1z M20 12h1v1h-1z M21 12h1v1h-1z M22 12h1v1h-1z M23 12h1v1h-1z M24 12h1v1h-1z M27 12h1v1h-1z M28 12h1v1h-1z M5 13h1v1h-1z M6 13h1v1h-1z M8 13h1v1h-1z M9 13h1v1h-1z M12 13h1v1h-1z M13 13h1v1h-1z M14 13h1v1h-1z M17 13h1v1h-1z M18 13h1v1h-1z M19 13h1v1h-1z M20 13h1v1h-1z M22 13h1v1h-1z M23 13h1v1h-1z M25 13h1v1h-1z M26 13h1v1h-1z M28 13h1v1h-1z M4 14h1v1h-1z M5 14h1v1h-1z M8 14h1v1h-1z M10 14h1v1h-1z M11 14h1v1h-1z M15 14h1v1h-1z M18 14h1v1h-1z M19 14h1v1h-1z M23 14h1v1h-1z M24 14h1v1h-1z M25 14h1v1h-1z M28 14h1v1h-1z M4 15h1v1h-1z M5 15h1v1h-1z M6 15h1v1h-1z M9 15h1v1h-1z M11 15h1v1h-1z M13 15h1v1h-1z M19 15h1v1h-1z M28 15h1v1h-1z M4 16h1v1h-1z M5 16h1v1h-1z M9 16h1v1h-1z M10 16h1v1h-1z M13 16h1v1h-1z M15 16h1v1h-1z M16 16h1v1h-1z M17 16h1v1h-1z M19 16h1v1h-1z M20 16h1v1h-1z M22 16h1v1h-1z M27 16h1v1h-1z M28 16h1v1h-1z M16 17h1v1h-1z M17 17h1v1h-1z M19 17h1v1h-1z M20 17h1v1h-1z M22 17h1v1h-1z M23 17h1v1h-1z M26 17h1v1h-1z M27 17h1v1h-1z M28 17h1v1h-1z M4 18h1v1h-1z M5 18h1v1h-1z M6 18h1v1h-1z M8 18h1v1h-1z M10 18h1v1h-1z M12 18h1v1h-1z M13 18h1v1h-1z M16 18h1v1h-1z M17 18h1v1h-1z M19 18h1v1h-1z M22 18h1v1h-1z M24 18h1v1h-1z M25 18h1v1h-1z M28 18h1v1h-1z M7 19h1v1h-1z M11 19h1v1h-1z M14 19h1v1h-1z M15 19h1v1h-1z M16 19h1v1h-1z M18 19h1v1h-1z M21 19h1v1h-1z M23 19h1v1h-1z M24 19h1v1h-1z M25 19h1v1h-1z M27 19h1v1h-1z M4 20h1v1h-1z M5 20h1v1h-1z M6 20h1v1h-1z M10 20h1v1h-1z M13 20h1v1h-1z M18 20h1v1h-1z M19 20h1v1h-1z M20 20h1v1h-1z M21 20h1v1h-1z M22 20h1v1h-1z M23 20h1v1h-1z M24 20h1v1h-1z M25 20h1v1h-1z M28 20h1v1h-1z M12 21h1v1h-1z M13 21h1v1h-1z M14 21h1v1h-1z M18 21h1v1h-1z M20 21h1v1h-1z M24 21h1v1h-1z M25 21h1v1h-1z M27 21h1v1h-1z M28 21h1v1h-1z M4 22h1v1h-1z M5 22h1v1h-1z M6 22h1v1h-1z M7 22h1v1h-1z M8 22h1v1h-1z M9 22h1v1h-1z M10 22h1v1h-1z M13 22h1v1h-1z M14 22h1v1h-1z M15 22h1v1h-1z M17 22h1v1h-1z M18 22h1v1h-1z M20 22h1v1h-1z M22 22h1v1h-1z M24 22h1v1h-1z M26 22h1v1h-1z M28 22h1v1h-1z M4 23h1v1h-1z M10 23h1v1h-1z M12 23h1v1h-1z M19 23h1v1h-1z M20 23h1v1h-1z M24 23h1v1h-1z M25 23h1v1h-1z M27 23h1v1h-1z M28 23h1v1h-1z M4 24h1v1h-1z M6 24h1v1h-1z M7 24h1v1h-1z M8 24h1v1h-1z M10 24h1v1h-1z M13 24h1v1h-1z M14 24h1v1h-1z M15 24h1v1h-1z M16 24h1v1h-1z M18 24h1v1h-1z M19 24h1v1h-1z M20 24h1v1h-1z M21 24h1v1h-1z M22 24h1v1h-1z M23 24h1v1h-1z M24 24h1v1h-1z M28 24h1v1h-1z M4 25h1v1h-1z M6 25h1v1h-1z M7 25h1v1h-1z M8 25h1v1h-1z M10 25h1v1h-1z M14 25h1v1h-1z M16 25h1v1h-1z M18 25h1v1h-1z M19 25h1v1h-1z M24 25h1v1h-1z M26 25h1v1h-1z M27 25h1v1h-1z M4 26h1v1h-1z M6 26h1v1h-1z M7 26h1v1h-1z M8 26h1v1h-1z M10 26h1v1h-1z M12 26h1v1h-1z M13 26h1v1h-1z M16 26h1v1h-1z M17 26h1v1h-1z M18 26h1v1h-1z M24 26h1v1h-1z M25 26h1v1h-1z M26 26h1v1h-1z M27 26h1v1h-1z M28 26h1v1h-1z M4 27h1v1h-1z M10 27h1v1h-1z M12 27h1v1h-1z M14 27h1v1h-1z M15 27h1v1h-1z M16 27h1v1h-1z M18 27h1v1h-1z M20 27h1v1h-1z M22 27h1v1h-1z M23 27h1v1h-1z M25 27h1v1h-1z M4 28h1v1h-1z M5 28h1v1h-1z M6 28h1v1h-1z M7 28h1v1h-1z M8 28h1v1h-1z M9 28h1v1h-1z M10 28h1v1h-1z M12 28h1v1h-1z M14 28h1v1h-1z M16 28h1v1h-1z M17 28h1v1h-1z M18 28h1v1h-1z M20 28h1v1h-1z M21 28h1v1h-1z M23 28h1v1h-1z M24 28h1v1h-1z M25 28h1v1h-1z M28 28h1v1h-1z" fill="#172764"/></svg>
+                <path d="M108 67h20m-7-6 7 6-7 6" fill="none" stroke="#21a8f4" stroke-width="3"/>
+              </g>
+            </svg><div class="device-copy"><h3>Context Mapping (QR)</h3><p>Scan QR code,<br> identify machine/equipment<br> and map to the right context</p></div></article>
+        </div>
+        <span class="connector" aria-hidden="true"><svg class="icon"><use href="#arrow"/></svg></span>
+      </section>
+
+      <section class="panel top-panel hosted" aria-labelledby="hosted-title">
+        <header class="heading"><div class="number"><span>2</span></div><div><h2 id="hosted-title">Hosted AI Services</h2><p>AI inference services running on GPU servers<br>from a cloud provider (managed deployment)</p></div></header>
+        <div class="cloud-services">
+          <svg class="cloud-outline" viewBox="0 0 600 270" preserveAspectRatio="none" aria-hidden="true"><path d="M25 270Q0 270 0 245V95q0-31 31-31 13-47 66-42 21-44 79-36h217q57-8 80 36 58-6 75 42 52-1 52 37v144q0 25-25 25z"/></svg>
+          <div class="gpu">
+            <svg class="gpu-art" viewBox="0 0 320 95" role="img" aria-label="Hosted GPU servers in cloud infrastructure"><path d="M35 80C3 80 3 44 26 44 22 20 52 18 56 30c19-27 50-9 47 12 33-3 40 37 11 38z" fill="#a4ceff"/><path d="M251 80c-20 0-24-24-9-33-2-20 22-26 31-12 25-9 43 12 33 25 15 18-4 20-17 20z" fill="#a6d5ff"/><g fill="#bddfff"><path d="m132 18 118-5 15 7-119 6zM132 55l118-4 15 7-119 6z"/></g><g fill="#233e5e" stroke="#4da3fa" stroke-width="2"><rect x="131" y="20" width="134" height="30" rx="3"/><rect x="131" y="57" width="134" height="30" rx="3"/></g><g stroke="#10adff" stroke-width="3"><path d="M141 35h6m3 0h6m3 0h6m3 0h6m-33 37h6m3 0h6m3 0h6m3 0h6"/></g><g fill="#82a962"><circle cx="218" cy="34" r="2"/><circle cx="230" cy="34" r="2"/><circle cx="242" cy="34" r="2"/><circle cx="218" cy="72" r="2"/><circle cx="230" cy="72" r="2"/><circle cx="242" cy="72" r="2"/></g></svg>
+            <h3>Hosted GPU Infrastructure</h3><p>(cloud provider)</p>
+          </div>
+          <div class="services">
+            <article class="service"><span class="service-icon"><svg class="icon" aria-hidden="true"><use href="#wave"/></svg></span><h4>Speech-to-Text<br>(STT)</h4></article>
+            <article class="service"><span class="service-icon"><svg class="icon" aria-hidden="true"><use href="#file"/></svg></span><h4>OCR &amp;<br>Image Understanding</h4></article>
+            <article class="service"><span class="service-icon"><svg class="icon" aria-hidden="true"><use href="#brain"/></svg></span><h4>Knowledge<br>Extraction<br>(LLM)</h4></article>
+            <article class="service"><span class="service-icon"><svg class="icon" aria-hidden="true"><use href="#database-solid"/></svg></span><h4>Embedding &amp;<br>Vector Search<br>Inference</h4></article>
+          </div>
+        </div>
+        <span class="connector" aria-hidden="true"><svg class="icon"><use href="#arrow"/></svg></span>
+      </section>
+
+      <section class="panel top-panel platform" aria-labelledby="platform-title">
+        <header class="heading"><div class="number"><span>3</span></div><div><h2 id="platform-title">Knowledge Platform</h2><p>Store, manage and serve organizational<br>knowledge (managed cloud services)</p></div></header>
+        <div class="platform-services">
+          <article class="platform-service"><span class="platform-icon"><svg class="icon" aria-hidden="true"><use href="#database-solid"/></svg></span><h3>PostgreSQL<br>+ pgvector</h3><p>Structured data<br>&amp; vector search</p></article>
+          <article class="platform-service"><span class="platform-icon storage"><svg class="icon" aria-hidden="true"><use href="#file"/></svg></span><h3>Object Storage</h3><p>Documents,<br>images, videos,<br>audio</p></article>
+          <article class="platform-service"><span class="platform-icon"><svg class="icon" aria-hidden="true"><use href="#gear"/></svg></span><h3>API Services</h3><p>Search, Q&amp;A,<br>integration</p></article>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="bottom-row">
+      <section class="panel detail deployment" aria-labelledby="deployment-title">
+        <header class="heading"><div class="number"><span>01</span></div><div><h2 id="deployment-title">Deployment Model</h2><p>Hosted deployment with secure cloud access.</p></div></header>
+        <div class="detail-body deployment-list">
+          <article class="deployment-item"><span class="disc"><svg class="icon" aria-hidden="true"><use href="#cloud"/></svg></span><div><h3>Hosted / private cloud / hybrid</h3><p>Deployed on cloud provider GPU<br>infrastructure (e.g., AWS, Azure, GCP).</p></div></article>
+          <article class="deployment-item"><span class="disc"><svg class="icon" aria-hidden="true"><use href="#laptop"/></svg></span><div><h3>Browser, mobile and tablet access</h3><p>No local installation required.</p></div></article>
+          <article class="deployment-item"><span class="disc"><svg class="icon" aria-hidden="true"><use href="#network"/></svg></span><div><h3>REST / WebSocket APIs</h3><p>Easy integration with existing MES,<br>maintenance and enterprise systems.</p></div></article>
+          <article class="deployment-item"><span class="disc"><svg class="icon" aria-hidden="true"><use href="#shield"/></svg></span><div><h3>Secure &amp; compliant</h3><p>SSO, role-based access, encryption<br>and enterprise security policies.</p></div></article>
+        </div>
+      </section>
+
+      <section class="panel detail infrastructure" aria-labelledby="infrastructure-title">
+        <header class="heading"><div class="number"><span>02</span></div><div><h2 id="infrastructure-title">Infrastructure <span class="hosted-label">(Hosted)</span></h2><p>Managed cloud services with scalable resources.</p></div></header>
+        <div class="detail-body"><table class="infra-table" aria-label="Hosted infrastructure components and typical configuration"><thead><tr><th scope="col">Component</th><th scope="col">Typical Configuration</th></tr></thead><tbody>
+          <tr><td><span class="component-label"><svg class="icon" aria-hidden="true"><use href="#servers"/></svg><span>AI Inference<br>(Hosted GPU)</span></span></td><td>GPU server (e.g., A10 / L40S)<br>for STT, OCR, LLM, embeddings</td></tr>
+          <tr><td><span class="component-label"><svg class="icon" aria-hidden="true"><use href="#database"/></svg>Database</span></td><td>PostgreSQL + pgvector<br>(managed service)</td></tr>
+          <tr><td><span class="component-label"><svg class="icon" aria-hidden="true"><use href="#database"/></svg>Object Storage</span></td><td>Cloud object storage<br>(e.g., S3 / Azure Blob / GCS)</td></tr>
+          <tr><td><span class="component-label"><svg class="icon" aria-hidden="true"><use href="#laptop"/></svg>Client Access</span></td><td>Browser / mobile / tablet<br>(iOS / Android / Windows)</td></tr>
+          <tr><td><span class="component-label"><svg class="icon" aria-hidden="true"><use href="#network"/></svg>Network</span></td><td>Public cloud or private<br>VPC / VPN (optional)</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="panel detail performance" aria-labelledby="performance-title">
+        <header class="heading"><div class="number"><span>03</span></div><div><h2 id="performance-title">Performance &amp; Scale</h2><p>Built for responsive, scalable factory deployment.</p></div></header>
+        <div class="detail-body">
+          <section class="subsection"><svg class="icon" aria-hidden="true"><use href="#clock"/></svg><div class="subsection-content"><h3>Latency <span>(end-to-end)</span></h3><table class="metric-table" aria-label="End-to-end latency"><tbody>
+            <tr><td>Speech-to-Text (partial)</td><td>&lt; 500 ms</td></tr><tr><td>Knowledge extraction</td><td class="regular">1 – 3 s</td></tr><tr><td>Knowledge search / answer</td><td>&lt; 2 – 3 s</td></tr>
+          </tbody></table></div></section>
+          <section class="subsection"><svg class="icon" aria-hidden="true"><use href="#people"/></svg><div class="subsection-content"><h3>Scale <span>(typical, configurable)</span></h3><table class="metric-table" aria-label="Typical configurable scale"><tbody>
+            <tr><td>Concurrent users</td><td>20 – 50</td></tr><tr><td>Audio processing</td><td>50 – 100 hours/day</td></tr><tr><td>Documents / images</td><td>1,000 – 5,000 / day</td></tr><tr><td>Knowledge queries</td><td>5,000 – 20,000 / day</td></tr>
+          </tbody></table></div></section>
+          <div class="scaling-note"><svg class="icon" aria-hidden="true"><use href="#trend"/></svg><p>Auto-scales horizontally by adding GPU instances<br>and storage as usage grows.</p></div>
+        </div>
+      </section>
+
+      <section class="panel detail cost" aria-labelledby="cost-title">
+        <header class="heading"><div class="number"><span>04</span></div><div><h2 id="cost-title">Cost <span class="cost-label">(Estimated, pilot scale)</span></h2><p>Estimated hosted infrastructure operating cost.</p></div></header>
+        <div class="detail-body">
+          <section class="subsection"><svg class="icon" aria-hidden="true"><use href="#database-cost"/></svg><div class="subsection-content"><h3>Infrastructure cost <span>(monthly)</span></h3><table class="metric-table cost-table" aria-label="Estimated monthly infrastructure cost from the reference"><tbody>
+            <tr><td>Hosted GPU compute<br>(e.g., A10 / L40S)</td><td><strong>~ $3,000 – 6,000</strong><br>(on-demand)</td></tr>
+            <tr><td>Database (PostgreSQL + pgvector)</td><td>~ $500 – 1,500</td></tr><tr><td>Object storage</td><td>~ $100 – 500</td></tr><tr class="total"><td>Total initial setup (pilot)</td><td>~ $4,000 – 8,000</td></tr>
+          </tbody></table></div></section>
+          <section class="subsection"><svg class="icon" aria-hidden="true"><use href="#gear"/></svg><div class="subsection-content"><h3>Operational cost <span>(per month, pilot)</span></h3><table class="metric-table cost-table" aria-label="Estimated monthly pilot operational cost from the reference"><tbody>
+            <tr><td>Additional GPU compute (as needed)</td><td>~ $300 – 800</td></tr><tr><td>Storage (1 – 2 TB)</td><td>~ $50 – 100</td></tr><tr class="total"><td>Estimated cost per active user</td><td>~ $5 – 15 / month</td></tr>
+          </tbody></table></div></section>
+          <div class="scaling-note"><svg class="icon" aria-hidden="true"><use href="#bars"/></svg><div><h3>Scaling principle</h3><p>Most storage and retrieval services scale horizontally.<br>GPU compute is the primary capacity and cost driver.</p></div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Expert Knowledge Management Architecture</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #f5f6f8; }
+  .diagram-wrapper { width: 100%; overflow-x: auto; }
+  svg {
+    display: block; width: 100%; max-width: 1740px; height: auto; margin: 0 auto;
+    background: #fff; border: 1px solid #dde3ea;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  text { text-anchor: middle; }
+
+  /* sections */
+  .sec { stroke-width: 1.5; }
+  .sec.blue   { fill: #f1f6fc; stroke: #6c8ebf; }
+  .sec.green  { fill: #f3f9f1; stroke: #82b366; }
+  .sec.orange { fill: #fff6e9; stroke: #d79b00; }
+  .sec.teal   { fill: #eef9f8; stroke: #5fb3ad; }
+  .st { font-size: 20px; font-weight: 700; text-anchor: start; }
+  .st.blue { fill: #1f4e8c; } .st.green { fill: #2d6a2d; }
+  .st.orange { fill: #a8531a; } .st.teal { fill: #1b6b68; }
+  .ss { font-size: 13px; fill: #5b6b7b; text-anchor: start; }
+
+  /* nodes */
+  .node { stroke-width: 1.5; }
+  .n-blue    { fill: #dae8fc; stroke: #6c8ebf; }
+  .n-bluew   { fill: #fff;    stroke: #6c8ebf; }
+  .n-greenw  { fill: #fff;    stroke: #82b366; }
+  .n-orangew { fill: #fff;    stroke: #d79b00; }
+  .n-red     { fill: #f8cecc; stroke: #b85450; }
+  .n-purple  { fill: #e1d5e7; stroke: #9673a6; }
+  .t { font-size: 14px; font-weight: 700; fill: #1f2d3d; }
+  .t.big { font-size: 17px; }
+  .s { font-size: 12px; fill: #4d5d6e; }
+  .title { font-size: 28px; font-weight: 700; fill: #1f4e8c; }
+
+  /* database */
+  .db { fill: #dae8fc; stroke: #6c8ebf; stroke-width: 1.5; }
+  .db-top { fill: none; stroke: #6c8ebf; stroke-width: 1.5; }
+
+  /* connectors */
+  path[class^="a-"] { fill: none; stroke-width: 2; stroke-linejoin: round; marker-end: url(#h-blue); }
+  .a-blue  { stroke: #2a6ebb; }
+  .a-green { stroke: #2e8b57; marker-end: url(#h-green); }
+  .a-red   { stroke: #d64545; marker-end: url(#h-red); }
+  .nohead  { marker-end: none !important; }
+  .dashed  { stroke-dasharray: 7 5; }
+
+  .lb { font-size: 11px; font-weight: 600; }
+  .l-blue  { fill: #2a6ebb; }
+  .l-green { fill: #2e8b57; }
+  .l-red   { fill: #d64545; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="diagram-wrapper">
+<svg viewBox="0 0 1740 1060" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="h-blue"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2a6ebb"/></marker>
+  <marker id="h-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2e8b57"/></marker>
+  <marker id="h-red"   viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d64545"/></marker>
+</defs>
+<text class="title" x="870.0" y="46">Architecture Diagram – Hệ thống quản lý tri thức chuyên gia</text>
+<rect class="sec blue" x="20" y="80" width="260" height="630" rx="12"/>
+<text class="st blue" x="40" y="112">Nguồn đầu vào</text>
+<text class="ss" x="40" y="134">Dữ liệu từ chuyên gia và hiện trường</text>
+<rect class="sec green" x="320" y="80" width="480" height="630" rx="12"/>
+<text class="st green" x="340" y="112">Xử lý đầu vào</text>
+<text class="ss" x="340" y="134">Chuyển đổi dữ liệu thành dạng chuẩn</text>
+<rect class="sec orange" x="840" y="80" width="400" height="630" rx="12"/>
+<text class="st orange" x="860" y="112">Structured Knowledge Processing</text>
+<text class="ss" x="860" y="134">Chuẩn hóa, đối chiếu và cập nhật tri thức</text>
+<rect class="sec green" x="1320" y="80" width="400" height="330" rx="12"/>
+<text class="st green" x="1340" y="112">Kho tri thức</text>
+<text class="ss" x="1340" y="134">Lưu trữ tri thức chuyên gia</text>
+<rect class="sec teal" x="1320" y="440" width="400" height="270" rx="12"/>
+<text class="st teal" x="1340" y="472">Review &amp; Reporting</text>
+<text class="ss" x="1340" y="494">Kiểm tra thay đổi và tổng hợp báo cáo</text>
+<rect class="node n-bluew" x="40" y="170" width="220" height="100" rx="8"/>
+<text class="t" x="150.0" y="214.5">Giọng nói chuyên gia</text>
+<text class="s" x="150.0" y="234.5">Trao đổi, chia sẻ kinh nghiệm</text>
+<rect class="node n-bluew" x="40" y="300" width="220" height="100" rx="8"/>
+<text class="t" x="150.0" y="336.0">Ghi chú viết tay</text>
+<text class="t" x="150.0" y="353.0">/ tài liệu</text>
+<text class="s" x="150.0" y="373.0">Biên bản, tài liệu, hình ảnh</text>
+<rect class="node n-bluew" x="40" y="430" width="220" height="100" rx="8"/>
+<text class="t" x="150.0" y="451.0">Metadata ngữ cảnh</text>
+<text class="t" x="150.0" y="468.0">dây chuyền</text>
+<text class="s" x="150.0" y="488.0">QR / mã máy</text>
+<text class="s" x="150.0" y="503.0">Timestamp</text>
+<text class="s" x="150.0" y="518.0">Expert ID</text>
+<rect class="node n-blue" x="340" y="170" width="90" height="360" rx="8"/>
+<text class="t" x="385.0" y="321.0">Input</text>
+<text class="t" x="385.0" y="338.0">Interface</text>
+<text class="s" x="385.0" y="358.0">Tiếp nhận</text>
+<text class="s" x="385.0" y="373.0">và chuẩn hóa</text>
+<text class="s" x="385.0" y="388.0">dữ liệu</text>
+<rect class="node n-greenw" x="470" y="170" width="150" height="100" rx="8"/>
+<text class="t" x="545.0" y="214.5">STT</text>
+<text class="s" x="545.0" y="234.5">Giọng nói → văn bản</text>
+<rect class="node n-greenw" x="470" y="300" width="150" height="100" rx="8"/>
+<text class="t" x="545.0" y="337.0">OCR</text>
+<text class="s" x="545.0" y="357.0">Trích xuất văn bản</text>
+<text class="s" x="545.0" y="372.0">từ tài liệu, hình ảnh</text>
+<rect class="node n-greenw" x="470" y="430" width="150" height="100" rx="8"/>
+<text class="t" x="545.0" y="467.0">Metadata Extractor</text>
+<text class="s" x="545.0" y="487.0">Trích xuất metadata</text>
+<text class="s" x="545.0" y="502.0">ngữ cảnh</text>
+<rect class="node n-blue" x="660" y="270" width="120" height="160" rx="8"/>
+<text class="t" x="720.0" y="328.5">Raw content</text>
+<text class="t" x="720.0" y="345.5">+ metadata</text>
+<text class="s" x="720.0" y="365.5">Văn bản, nội dung</text>
+<text class="s" x="720.0" y="380.5">và metadata gộp</text>
+<rect class="node n-blue" x="340" y="600" width="220" height="80" rx="8"/>
+<text class="t" x="450.0" y="634.5">Object Storage</text>
+<text class="s" x="450.0" y="654.5">Raw conversation / artifact</text>
+<rect class="node n-blue" x="600" y="600" width="180" height="80" rx="8"/>
+<text class="t" x="690.0" y="634.5">PostgreSQL</text>
+<text class="s" x="690.0" y="654.5">Metadata</text>
+<rect class="node n-orangew" x="860" y="170" width="360" height="80" rx="8"/>
+<text class="t" x="1040.0" y="197.0">LLM Extractor → JSON</text>
+<text class="s" x="1040.0" y="217.0">Trích xuất thực thể, quan hệ</text>
+<text class="s" x="1040.0" y="232.0">và tri thức có cấu trúc</text>
+<rect class="node n-orangew" x="860" y="295" width="360" height="80" rx="8"/>
+<text class="t" x="1040.0" y="329.5">Candidate Matching</text>
+<text class="s" x="1040.0" y="349.5">Field rules + semantic candidate retrieval</text>
+<rect class="node n-orangew" x="860" y="420" width="160" height="90" rx="8"/>
+<text class="t" x="940.0" y="452.0">Match Review</text>
+<text class="s" x="940.0" y="472.0">Same / Compatible /</text>
+<text class="s" x="940.0" y="487.0">Conflict</text>
+<rect class="node n-red" x="1090" y="420" width="130" height="90" rx="8"/>
+<text class="t" x="1155.0" y="452.0">Human Review</text>
+<text class="s" x="1155.0" y="472.0">Chuyên gia</text>
+<text class="s" x="1155.0" y="487.0">xem xét</text>
+<rect class="node n-orangew" x="860" y="580" width="360" height="90" rx="8"/>
+<text class="t" x="1040.0" y="612.0">Insert new record</text>
+<text class="s" x="1040.0" y="632.0">Tạo bản ghi tri thức mới +</text>
+<text class="s" x="1040.0" y="647.0">revision / history metadata</text>
+<path class="db" d="M1385 190 A135 25 0 0 1 1655 190 V340 A135 25 0 0 1 1385 340 Z"/>
+<path class="db-top" d="M1385 190 A135 25 0 0 0 1655 190"/>
+<text class="t big" x="1520" y="246">Knowledge Base</text>
+<text class="s" x="1520" y="268">PostgreSQL + pgvector</text>
+<text class="s" x="1520" y="298">knowledge records,</text>
+<text class="s" x="1520" y="315">revision / history,</text>
+<text class="s" x="1520" y="332">evidence</text>
+<rect class="node n-greenw" x="1350" y="515" width="340" height="64" rx="8"/>
+<text class="t" x="1520.0" y="541.5">Check data change</text>
+<text class="s" x="1520.0" y="561.5">re-process or not</text>
+<rect class="node n-bluew" x="1350" y="614" width="340" height="64" rx="8"/>
+<text class="t" x="1520.0" y="640.5">Daily aggregate report</text>
+<text class="s" x="1520.0" y="660.5">Step-by-step report per machine ID</text>
+<rect class="sec blue" x="20" y="760" width="1700" height="270" rx="12"/>
+<text class="st blue" x="40" y="792">Truy vấn và tìm kiếm tri thức</text>
+<text class="ss" x="40" y="814">Hỗ trợ người dùng tra cứu, phân tích và nhận báo cáo</text>
+<rect class="node n-purple" x="40" y="855" width="190" height="100" rx="8"/>
+<text class="t" x="135.0" y="892.0">Người dùng truy vấn</text>
+<text class="s" x="135.0" y="912.0">Voice / text</text>
+<text class="s" x="135.0" y="927.0">Kỹ sư, chuyên gia, quản lý</text>
+<rect class="node n-bluew" x="280" y="865" width="80" height="80" rx="8"/>
+<text class="t" x="320.0" y="909.5">STT</text>
+<rect class="node n-bluew" x="410" y="855" width="170" height="100" rx="8"/>
+<text class="t" x="495.0" y="891.0">Natural-language</text>
+<text class="t" x="495.0" y="908.0">query</text>
+<text class="s" x="495.0" y="928.0">Hiểu câu hỏi tự nhiên</text>
+<rect class="node n-red" x="640" y="840" width="210" height="130" rx="8"/>
+<text class="t" x="745.0" y="883.5">Query Orchestrator /</text>
+<text class="t" x="745.0" y="900.5">LLM tool calling</text>
+<text class="s" x="745.0" y="920.5">Phân tích ý định,</text>
+<text class="s" x="745.0" y="935.5">lựa chọn công cụ phù hợp</text>
+<rect class="node n-bluew" x="920" y="825.0" width="170" height="65" rx="8"/>
+<text class="t" x="1005.0" y="862.0">Text-to-SQL</text>
+<rect class="node n-bluew" x="920" y="920.0" width="170" height="65" rx="8"/>
+<text class="t" x="1005.0" y="957.0">RAG</text>
+<rect class="node n-bluew" x="1240" y="850" width="220" height="110" rx="8"/>
+<text class="t" x="1350.0" y="892.0">LLM Report Generation</text>
+<text class="s" x="1350.0" y="912.0">Tổng hợp, phân tích và</text>
+<text class="s" x="1350.0" y="927.0">đính kèm nguồn trích dẫn</text>
+<rect class="node n-purple" x="1510" y="850" width="190" height="110" rx="8"/>
+<text class="t" x="1605.0" y="892.0">Câu trả lời / báo cáo</text>
+<text class="s" x="1605.0" y="912.0">Hiển thị kết quả, trích dẫn</text>
+<text class="s" x="1605.0" y="927.0">và tài liệu tham khảo</text>
+<path class="a-blue" d="M260 220 H340"/>
+<path class="a-blue" d="M430 220 H470"/>
+<path class="a-blue" d="M260 350 H340"/>
+<path class="a-blue" d="M430 350 H470"/>
+<path class="a-blue" d="M260 480 H340"/>
+<path class="a-blue" d="M430 480 H470"/>
+<path class="a-blue" d="M620 220 H640 V310 H660"/>
+<path class="a-blue" d="M620 350 H660"/>
+<path class="a-blue" d="M620 480 H640 V390 H660"/>
+<path class="a-blue" d="M690 430 V560 H450 V600"/>
+<text class="lb l-blue" x="570" y="552" text-anchor="middle">store artifact</text>
+<path class="a-blue" d="M750 430 V600"/>
+<text class="lb l-blue" x="742" y="588" text-anchor="end">store metadata</text>
+<path class="a-blue" d="M780 350 H820 V210 H860"/>
+<path class="a-blue" d="M940 250 V295"/>
+<path class="a-blue" d="M940 375 V420"/>
+<path class="a-blue" d="M940 510 V580"/>
+<path class="a-red" d="M1020 465 H1090"/>
+<text class="lb l-red" x="1055" y="456" text-anchor="middle">Conflict</text>
+<path class="a-red" d="M1155 510 V580"/>
+<path class="a-blue" d="M1220 625 H1270 V265 H1385"/>
+<text class="lb l-blue" x="1262" y="445" text-anchor="middle" transform="rotate(-90 1262 445)">knowledge record</text>
+<path class="a-blue" d="M1620 357 V515"/>
+<path class="a-blue" d="M1620 579 V614"/>
+<path class="a-blue" d="M230 905 H280"/>
+<text class="lb l-green" x="255" y="897" text-anchor="middle">voice</text>
+<path class="a-blue" d="M360 905 H410"/>
+<text class="lb l-blue" x="385" y="897" text-anchor="middle">text</text>
+<path class="a-blue" d="M580 905 H640"/>
+<path class="a-blue" d="M850 905 H885 V857.5 H920"/>
+<path class="a-blue" d="M850 905 H885 V952.5 H920"/>
+<path class="a-blue" d="M1090 857.5 H1165 V905 H1240"/>
+<path class="a-blue nohead" d="M1090 952.5 H1165 V905"/>
+<text class="lb l-blue" x="1165" y="845.5" text-anchor="middle">retrieved evidence</text>
+<path class="a-blue" d="M1460 905 H1510"/>
+<text class="lb l-blue" x="1485" y="897" text-anchor="middle">report</text>
+<path class="a-green dashed" d="M1005 825.0 V735 H1300 V310 H1385"/>
+<text class="lb l-green" x="1150" y="727" text-anchor="middle">truy vấn Knowledge Base</text>
+<path class="a-green dashed" d="M1620 678 V745 H1350 V850"/>
+<text class="lb l-green" x="1485" y="737" text-anchor="middle">sử dụng dữ liệu</text>
+</svg>
+</div>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>From Conversation to Reusable Knowledge</title>
+  <style>
+    :root { color-scheme: light; --ink:#111965; --body:#3c528a; --blue:#304cff; --green:#48a66b; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:20px 12px 12px; font-family:Arial,Helvetica,sans-serif; color:var(--ink); background:#fff; }
+    .symbols { position:absolute; width:0; height:0; overflow:hidden; }
+    .icon { width:2.25em; height:2.25em; flex:none; fill:none; stroke:currentColor; stroke-width:2.3; stroke-linecap:round; stroke-linejoin:round; }
+    .flow { display:grid; grid-template-columns:1.04fr .96fr 1.04fr; gap:1.2em; max-width:2048px; margin:auto; font-size:clamp(13px,1.04vw,21px); }
+    .stage { position:relative; min-width:0; padding:.8em; border:2px solid; border-radius:1.15em; min-height:44em; display:flex; flex-direction:column; }
+    .raw { background:linear-gradient(135deg,#edf5ff,#f2f8ff); border-color:#d4e6ff; }
+    .extract { background:linear-gradient(140deg,#edfbff,#f6fdff); border-color:#bdf3ff; }
+    .reuse { background:linear-gradient(140deg,#effcf5,#f4fdf9); border-color:#bff2df; }
+    .stage-header { display:flex; align-items:flex-start; gap:1em; min-height:6.25em; padding:.2em 0 .8em; }
+    .step { width:4.4em; height:4.4em; flex:none; display:grid; place-items:center; border:4px solid white; border-radius:50%; color:white; background:linear-gradient(#6779ff,#1633e7); box-shadow:0 0 0 1px #e9f0ff; }
+    .step span { font-size:2em; font-weight:700; }
+    .extract .step { background:linear-gradient(#59c3d9,#286bc2); }
+    .reuse .step { background:linear-gradient(#73c883,#329961); }
+    h2 { font-size:1.62em; line-height:1.15; letter-spacing:-.04em; margin:.42em 0 .22em; }
+    .stage-header p { color:var(--body); margin:0; font-size:1.04em; line-height:1.35; }
+    .extract .stage-header { min-height:7.35em; }
+    .extract .stage-header p { margin-left:-3.5em; margin-top:.55em; text-align:center; }
+    .stage-arrow { position:absolute; z-index:4; top:46%; right:-2.4em; width:3.3em; height:4.4em; background:linear-gradient(90deg,#bfdfff,#2682ff); clip-path:polygon(0 24%,48% 24%,48% 0,100% 50%,48% 100%,48% 76%,0 76%); filter:drop-shadow(0 2px 3px #79b4eb55); }
+    .input-grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1.12fr; gap:.6em; }
+    .input-card { min-width:0; background:#ffffffce; border-radius:1em; padding:.6em; display:flex; flex-direction:column; }
+    .input-title { display:flex; align-items:center; gap:.7em; min-height:4.1em; padding-bottom:.4em; }
+    .icon-disc { display:grid; place-items:center; width:3.6em; height:3.6em; border-radius:50%; background:#e9f2ff; color:var(--blue); flex:none; }
+    .input-title h3 { margin:0; font-size:1.08em; line-height:1.3; letter-spacing:-.03em; }
+    .input-media { position:relative; flex:1; min-height:0; overflow:hidden; border-radius:.8em; background:#edf5ff; }
+    .engineers { display:block; width:100%; height:100%; object-fit:cover; object-position:52% center; position:absolute; }
+    .audio { display:flex; flex-direction:column; justify-content:center; gap:1em; padding:.5em; background:linear-gradient(130deg,#edf6ff,#e7f2ff); }
+    .waveform { width:100%; height:6.8em; color:#4d60ff; fill:none; stroke:currentColor; stroke-width:4; stroke-linecap:round; }
+    .audio-player { display:flex; gap:.65em; align-items:center; padding:.45em; border-radius:2em; background:#dcecff; color:#4762bb; font-size:1.02em; }
+    .play-symbol { width:2.2em; height:2.2em; display:grid; place-items:center; border-radius:50%; color:#fff; background:linear-gradient(#6b7eff,#304cff); flex:none; }
+    .play-symbol .icon { width:1.3em; height:1.3em; fill:currentColor; stroke:none; }
+    .progress { height:4px; background:#93b0f4; border-radius:3px; flex:1; }
+    .progress::before { content:""; display:block; width:44%; height:100%; background:#4568f7; border-radius:3px; }
+    .note-scene { background:linear-gradient(125deg,#d9d1c4,#f5eee2); padding:.3em .15em 0 .8em; }
+    .notebook { position:absolute; inset:.35em -.5em -.8em 1em; padding:.8em .5em .8em 1.5em; transform:rotate(-7deg); background:repeating-linear-gradient(#fcf8eb 0,#fcf8eb 1.58em,#d6d6cf 1.62em,#fcf8eb 1.65em); border-left:2px solid #b49d81; box-shadow:0 4px 12px #50463a44; color:#344d91; font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive; font-size:1.05em; }
+    .notebook::before { content:""; position:absolute; left:-.45em; top:.45em; bottom:0; width:.7em; background:repeating-linear-gradient(transparent 0,transparent .75em,#504a3f .78em,#504a3f .95em,transparent 1em,transparent 1.45em); }
+    .note-heading { display:inline-block; margin:0 0 .25em; border-bottom:1px solid #7889af; font-size:1.15em; }
+    .notebook p { margin:.28em 0; line-height:1.3; white-space:nowrap; }
+    .sensor-sketch { width:100%; height:5.4em; color:#536895; }
+    .document-scene { background:#42515a; }
+    .document-scene > img { width:100%; height:100%; position:absolute; object-fit:cover; opacity:.6; }
+    .tablet { position:absolute; left:13%; top:.65em; width:82%; height:115%; transform:rotate(9deg); padding:.75em; border:.4em solid #15191e; border-radius:.7em; background:#e9eaf0; box-shadow:-.6em .4em 1em #0008; }
+    .tablet::before { content:""; position:absolute; width:.18em; height:.18em; border-radius:50%; background:#778089; top:-.25em; left:50%; }
+    .report-title { color:#20222c; font-size:.72em; line-height:1.3; font-weight:700; margin:.1em 0 .7em; }
+    .report-photo { width:100%; height:6.1em; object-fit:cover; display:block; }
+    .report-lines { height:3.2em; margin-top:.7em; background:repeating-linear-gradient(#b8bdc9 0,#b8bdc9 2px,transparent 2px,transparent .35em); opacity:.8; }
+    .extraction-body { position:relative; flex:1; min-height:33.7em; display:flex; align-items:center; }
+    .connections { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+    .ai-hub { position:relative; z-index:1; width:31%; min-height:9.5em; padding:1em .4em; border-radius:.45em; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; background:#fff; border:1.5px solid #8194b0; margin-top:-2.5em; }
+    .ai-hub .icon { width:3.4em; height:3.4em; color:#405877; margin-bottom:.65em; stroke-width:1.7; }
+    .ai-hub h3 { font-size:1.08em; line-height:1.16; letter-spacing:-.025em; margin:0; }
+    .knowledge-fields { margin-left:auto; width:59%; display:flex; flex-direction:column; gap:.48em; align-self:stretch; }
+    .field { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; text-align:center; border:2px solid currentColor; background:#fff; border-radius:1em; padding:.68em 1em; flex:1; }
+    .field h3 { margin:0 0 .22em; font-size:1.08em; letter-spacing:-.03em; }
+    .field p { margin:0; color:var(--body); font-size:.98em; line-height:1.3; }
+    .symptom { color:#dc3955; }
+    .reasoning { color:#852ee6; }
+    .root-cause { color:#d58524; }
+    .action { color:#3d975c; }
+    .result { color:#3152eb; }
+    .conditions { color:#627591; }
+    .conditions h3 { font-size:.95em; }
+    .knowledge-card { border:1px solid #d4f3e7; background:#ffffffdf; border-radius:1.1em; padding:.9em; }
+    .card-header { display:flex; align-items:center; gap:1em; margin-bottom:.6em; }
+    .book-icon { width:3em; height:3em; display:grid; place-items:center; border-radius:.7em; color:white; background:linear-gradient(130deg,#6bc580,#359556); }
+    .book-icon .icon { width:2em; height:2em; }
+    .card-header h3 { margin:0; font-size:1.38em; letter-spacing:-.035em; }
+    .validated { display:flex; align-items:center; gap:.4em; margin-left:auto; padding:.6em .8em; border-radius:.8em; background:#e0f9ed; color:#418653; white-space:nowrap; font-size:.95em; }
+    .validated .icon { width:1.3em; height:1.3em; }
+    .knowledge-table { width:100%; border-collapse:separate; border-spacing:0; border:1px solid #e1e8f1; border-radius:.8em; overflow:hidden; font-size:.95em; line-height:1.3; color:#344783; }
+    .knowledge-table th,.knowledge-table td { padding:.68em .7em; border-bottom:1px solid #e1e8f1; text-align:left; font-weight:400; vertical-align:middle; }
+    .knowledge-table tr:last-child > * { border-bottom:0; }
+    .knowledge-table th { width:37%; background:#f7f9fc; border-right:1px solid #e1e8f1; }
+    .row-label { display:flex; align-items:center; gap:.8em; }
+    .row-label .icon { width:1.55em; height:1.55em; }
+    .evidence { display:flex; align-items:center; gap:.4em; }
+    .evidence-wave { display:grid; place-items:center; flex:none; width:2.8em; height:2.8em; margin-left:auto; border-radius:.8em; background:#eaf2ff; color:#4760ff; }
+    .evidence-wave .icon { width:2em; height:2em; }
+    .reuse-heading { font-size:1.23em; margin:.65em .3em .65em; letter-spacing:-.04em; }
+    .use-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.48em; flex:1; min-height:8.7em; }
+    .use-card { border-radius:.9em; display:flex; flex-direction:column; align-items:center; text-align:center; padding:.85em .4em .65em; }
+    .use-card .icon { width:2.7em; height:2.7em; margin-bottom:.65em; }
+    .use-card h4 { font-size:.94em; line-height:1.12; margin:0 0 .55em; color:var(--ink); letter-spacing:-.03em; }
+    .use-card p { font-size:.83em; line-height:1.25; margin:0; color:var(--body); }
+    .search { background:#e5f2ff; color:#3869ef; }
+    .assistant { background:#f0eaff; color:#9148ef; }
+    .training { background:#e3f9ef; color:#399550; }
+    .reports { background:#fff5e8; color:#ed9a38; }
+    .reports h4,.reports p { color:#803e27; }
+    .sources { max-width:2048px; margin:.9em auto 0; text-align:right; font-size:11px; color:#738499; }
+    .sources a { color:inherit; text-underline-offset:3px; }
+    @media (max-width:1100px) {
+      body { padding:16px; }
+      .flow { max-width:720px; grid-template-columns:1fr; gap:3em; font-size:clamp(14px,2.9vw,21px); }
+      .stage { min-height:43em; }
+      .stage-arrow { top:auto; bottom:-2.7em; right:calc(50% - 1.65em); transform:rotate(90deg); }
+      .extract .stage-header p { margin-left:0; text-align:left; }
+      .reuse { min-height:0; }
+      .sources { max-width:720px; text-align:center; line-height:1.7; }
+    }
+    @media (max-width:420px) {
+      body { padding:10px; }
+      .flow { font-size:13px; }
+      .stage { padding:.7em; }
+      h2 { font-size:1.45em; }
+      .stage-header { gap:.6em; }
+      .step { width:3.8em; height:3.8em; }
+      .input-title { gap:.45em; }
+      .icon-disc { width:2.8em; height:2.8em; }
+      .input-title h3 { font-size:1em; }
+      .notebook { font-size:.82em; }
+      .field { padding:.65em; }
+      .field h3 { font-size:1em; }
+      .field p { font-size:.9em; }
+      .card-header { gap:.6em; }
+      .card-header h3 { font-size:1.2em; }
+      .validated { padding:.5em; font-size:.8em; }
+      .knowledge-table th,.knowledge-table td { padding:.65em .45em; }
+      .row-label { gap:.4em; }
+      .use-grid { grid-template-columns:repeat(2,1fr); }
+      .use-card { min-height:10em; }
+    }
+    @media print {
+      @page { size:A3 landscape; margin:8mm; }
+      body { padding:0; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .flow { grid-template-columns:1.04fr .96fr 1.04fr; font-size:13px; gap:1.2em; max-width:none; }
+      .stage { min-height:44em; break-inside:avoid; }
+      .stage-arrow { top:46%; bottom:auto; right:-2.4em; transform:none; }
+      .use-grid { grid-template-columns:repeat(4,1fr); }
+      .sources { font-size:9px; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="microphone" viewBox="0 0 32 32"><rect x="12" y="3" width="8" height="17" rx="4" fill="currentColor" stroke="none"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10"/></symbol>
+    <symbol id="people" viewBox="0 0 32 32"><circle cx="12" cy="10" r="5" fill="currentColor" stroke="none"/><circle cx="23" cy="11" r="4" fill="currentColor" stroke="none"/><path d="M2 28v-3a10 10 0 0 1 20 0v3zm22-11a8 8 0 0 1 7 8v3h-6v-3a13 13 0 0 0-2-7" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="document" viewBox="0 0 32 32"><rect x="5" y="2" width="22" height="28" rx="3" fill="currentColor" stroke="none"/><path d="M11 10h10m-10 6h10m-10 6h7" stroke="white"/></symbol>
+    <symbol id="image" viewBox="0 0 32 32"><rect x="3" y="3" width="26" height="26" rx="3" fill="currentColor" stroke="none"/><circle cx="11" cy="11" r="2.5" fill="white" stroke="none"/><path d="m6 25 8-10 5 5 4-5 5 10" fill="white" stroke="none"/></symbol>
+    <symbol id="play" viewBox="0 0 32 32"><path d="m10 5 19 11-19 11z"/></symbol>
+    <symbol id="warning" viewBox="0 0 32 32"><path d="M13 4a3.4 3.4 0 0 1 6 0l12 23a2.3 2.3 0 0 1-2 3H3a2.3 2.3 0 0 1-2-3z" fill="currentColor" stroke="none"/><path d="M16 11v8m0 5v.2" stroke="white" stroke-width="3"/></symbol>
+    <symbol id="gear" viewBox="0 0 32 32"><path d="m12 1-1 4-4 2-4-1-3 6 3 3v3l-3 3 3 6 4-1 4 2 1 4h8l1-4 4-2 4 1 3-6-3-3v-3l3-3-3-6-4 1-4-2-1-4z" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="6" fill="white" stroke="none"/></symbol>
+    <symbol id="bulb" viewBox="0 0 32 32"><path d="M10 24c0-5-7-7-7-13a13 13 0 0 1 26 0c0 6-7 8-7 13z" fill="currentColor" stroke="none"/><path d="M12 28h8m-6 3h4M13 22v-8l-3-3m9 11v-8l3-3" stroke-width="2"/><path d="M13 22v-8l-3-3m9 11v-8l3-3" stroke="white" stroke-width="1.5"/></symbol>
+    <symbol id="search" viewBox="0 0 32 32"><circle cx="13" cy="13" r="10" stroke-width="4"/><path d="m21 21 9 9" stroke-width="4.5"/></symbol>
+    <symbol id="wrench" viewBox="0 0 32 32"><path d="M30 3 23 10l-5-1-1-5 7-7c-6-2-13 3-13 9 0 2 0 3 1 4L1 23a5 5 0 0 0 7 7l13-13c7 2 13-5 9-14z" transform="translate(0 2) scale(.94)" fill="currentColor" stroke="none"/><circle cx="6" cy="26" r="1.2" fill="white" stroke="none"/></symbol>
+    <symbol id="chart" viewBox="0 0 32 32"><rect x="3" y="19" width="7" height="12" rx="2" fill="currentColor" stroke="none"/><rect x="13" y="11" width="7" height="20" rx="2" fill="currentColor" stroke="none"/><rect x="23" y="3" width="7" height="28" rx="2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="book" viewBox="0 0 32 32"><path d="M16 8v20M2 5v21c5-2 9-1 14 2 5-3 9-4 14-2V5c-5-2-9-1-14 2C11 4 7 3 2 5z"/></symbol>
+    <symbol id="check" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="currentColor" stroke="none"/><path d="m9 16 5 5 9-10" stroke="white" stroke-width="3"/></symbol>
+    <symbol id="chat" viewBox="0 0 32 32"><path d="M16 2C7 2 1 7 1 14c0 5 3 8 7 10v7l7-5c9 0 16-4 16-12S25 2 16 2z" fill="currentColor" stroke="none"/><path d="M9 14h.1m7 0h.1m7 0h.1" stroke="white" stroke-width="3.5"/></symbol>
+    <symbol id="cap" viewBox="0 0 32 32"><path d="m1 10 15-7 15 7-15 7zM7 17v9c6 4 12 4 18 0v-9" fill="currentColor" stroke="none"/><path d="M30 12v15"/></symbol>
+    <symbol id="wave" viewBox="0 0 32 32"><path d="M2 14v4m4-8v12m4-16v20m4-23v26m4-20v14m4-16v18m4-14v10m4-7v4" stroke-width="1.8"/></symbol>
+    <symbol id="processor" viewBox="0 0 48 48"><rect x="10" y="10" width="28" height="28" rx="2"/><path d="M18 4v6m6-6v6m6-6v6M18 38v6m6-6v6m6-6v6M4 18h6m-6 6h6m-6 6h6M38 18h6m-6 6h6m-6 6h6M23 18h8m-8 6h8m-8 6h8"/><rect x="16" y="16" width="3" height="3" rx=".4"/><rect x="16" y="22" width="3" height="3" rx=".4"/><rect x="16" y="28" width="3" height="3" rx=".4"/></symbol>
+  </defs></svg>
+
+  <main class="flow" aria-label="Three-step flow from raw inputs to reusable organizational knowledge">
+    <section class="stage raw" aria-labelledby="raw-title">
+      <header class="stage-header">
+        <div class="step"><span>01</span></div>
+        <div><h2 id="raw-title">Raw conversation or document</h2><p>Unstructured, multi-modal inputs from the field</p></div>
+      </header>
+      <div class="input-grid">
+        <article class="input-card">
+          <div class="input-title"><span class="icon-disc"><svg class="icon" aria-hidden="true"><use href="#microphone"/></svg></span><h3>Voice / audio input</h3></div>
+          <div class="input-media audio" role="img" aria-label="Illustration of a 24-second audio recording">
+            <svg class="waveform" viewBox="0 0 280 130" aria-hidden="true"><path d="M5 61v8m9-15v22m9-33v44m9-55v66m9-42v40m9-57v54m9-38v26m9-25v23m9-47v70m9-85v100m9-113v124m9-107v89m9-65v44m9-40v35m9-26v17m9-35v35m9-49v62m9-43v25m9-26v28m9-22v13m9-34v37m9-47v64m9-79v95m9-111v121m9-101v89m9-62v49m9-30v16m9-29v33m9-47v60m9-48v35m9-23v19m9-13v8"/></svg>
+            <div class="audio-player"><span class="play-symbol"><svg class="icon" aria-hidden="true"><use href="#play"/></svg></span><span class="progress"></span><span>0:24</span></div>
+          </div>
+        </article>
+        <article class="input-card">
+          <div class="input-title"><span class="icon-disc"><svg class="icon" aria-hidden="true"><use href="#people"/></svg></span><h3>Multi-speaker<br>conversation</h3></div>
+          <div class="input-media"><img class="engineers" src="assets/knowledge-flow/engineers.jpg" alt="Two engineers wearing hard hats discussing plans on a factory floor"></div>
+        </article>
+        <article class="input-card">
+          <div class="input-title"><span class="icon-disc"><svg class="icon" aria-hidden="true"><use href="#document"/></svg></span><h3>Handwritten note</h3></div>
+          <div class="input-media note-scene" role="img" aria-label="Notebook: M01 sensor issue, signal fluctuates, check lens, oil mist area (LHS), clean?">
+            <div class="notebook"><div class="note-heading">M01 sensor issue</div><p>- signal fluctuates</p><p>- check lens?</p><p>- oil mist area (LHS)</p><svg class="sensor-sketch" viewBox="0 0 240 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.7"><path d="m20 35 45-17 38 12v48L60 93 20 78zm0 0 40 13 43-18M60 48v45M35 56v17l11 4V60zm40-22 13-5 9 3-14 5zM82 52v10m5-12v10M110 58h35m-7-6 7 6-7 6m-20-12-8 6 8 6"/></g><text x="152" y="63" fill="currentColor" font-size="18" font-family="cursive">clean?</text></svg></div>
+          </div>
+        </article>
+        <article class="input-card">
+          <div class="input-title"><span class="icon-disc"><svg class="icon" aria-hidden="true"><use href="#image"/></svg></span><h3>Document / image</h3></div>
+          <div class="input-media document-scene" role="img" aria-label="Tablet showing the M01 Maintenance Report and a factory photograph">
+            <img src="assets/knowledge-flow/factory.jpg" alt=""><div class="tablet"><div class="report-title">M01<br>Maintenance Report</div><img class="report-photo" src="assets/knowledge-flow/factory.jpg" alt=""><div class="report-lines"></div></div>
+          </div>
+        </article>
+      </div>
+      <div class="stage-arrow" aria-hidden="true"></div>
+    </section>
+
+    <section class="stage extract" aria-labelledby="extract-title">
+      <header class="stage-header"><div class="step"><span>02</span></div><div><h2 id="extract-title">What is hidden inside<br>the conversation</h2><p>AI extracts structured knowledge, not just transcripts</p></div></header>
+      <div class="extraction-body">
+        <svg class="connections" aria-hidden="true"></svg>
+        <div class="ai-hub"><svg class="icon" aria-hidden="true"><use href="#processor"/></svg><h3>AI<br>Extraction &amp;<br>Structuring</h3></div>
+        <div class="knowledge-fields">
+          <article class="field symptom"><div><h3>Symptom &amp; Context</h3><p>“Signal fluctuates”<br>“rear sensor on M01”</p></div></article>
+          <article class="field reasoning"><div><h3>Reasoning</h3><p>“likely due to oil mist<br>on lens”</p></div></article>
+          <article class="field root-cause"><div><h3>Root cause</h3><p>“oil mist on lens”</p></div></article>
+          <article class="field action"><div><h3>Action</h3><p>“clean lens first”</p></div></article>
+          <article class="field result"><div><h3>Result</h3><p>“signal becomes stable”</p></div></article>
+          <article class="field conditions"><div><h3>Applicability / conditions</h3><p>“applies when exposed<br>to oil mist”</p></div></article>
+        </div>
+      </div>
+      <div class="stage-arrow" aria-hidden="true"></div>
+    </section>
+
+    <section class="stage reuse" aria-labelledby="reuse-title">
+      <header class="stage-header"><div class="step"><span>03</span></div><div><h2 id="reuse-title">Reusable Knowledge</h2><p>Structured, traceable knowledge ready for use</p></div></header>
+      <article class="knowledge-card" aria-labelledby="card-title">
+        <header class="card-header"><span class="book-icon"><svg class="icon" aria-hidden="true"><use href="#book"/></svg></span><h3 id="card-title">Knowledge Card</h3><span class="validated"><svg class="icon" aria-hidden="true"><use href="#check"/></svg>Validated</span></header>
+        <table class="knowledge-table" aria-label="Structured knowledge extracted from the example maintenance conversation"><tbody>
+          <tr><th scope="row"><span class="row-label"><svg class="icon" style="color:#687890" aria-hidden="true"><use href="#gear"/></svg>Machine</span></th><td>M01</td></tr>
+          <tr><th scope="row"><span class="row-label"><svg class="icon" style="color:#df4560" aria-hidden="true"><use href="#warning"/></svg>Problem</span></th><td>Intermittent sensor signal</td></tr>
+          <tr><th scope="row"><span class="row-label"><svg class="icon" style="color:#ec9c30" aria-hidden="true"><use href="#search"/></svg>Likely cause</span></th><td>Oil contamination on lens</td></tr>
+          <tr><th scope="row"><span class="row-label"><svg class="icon" style="color:#49a163" aria-hidden="true"><use href="#wrench"/></svg>Recommended<br>action</span></th><td>Clean lens before replacement</td></tr>
+          <tr><th scope="row"><span class="row-label"><svg class="icon" style="color:#697b98" aria-hidden="true"><use href="#document"/></svg>Applies when</span></th><td>Exposed to oil mist<br>environment</td></tr>
+          <tr><th scope="row"><span class="row-label"><svg class="icon" style="color:#3355f4" aria-hidden="true"><use href="#people"/></svg>Evidence</span></th><td><div class="evidence"><span>Expert conversation<br>(Maintenance team, 2 engineers)</span><span class="evidence-wave"><svg class="icon" aria-hidden="true"><use href="#wave"/></svg></span></div></td></tr>
+        </tbody></table>
+      </article>
+      <h3 class="reuse-heading">Reuse across the organization</h3>
+      <div class="use-grid">
+        <article class="use-card search"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><h4>Search</h4><p>Find similar<br>issues quickly</p></article>
+        <article class="use-card assistant"><svg class="icon" aria-hidden="true"><use href="#chat"/></svg><h4>Q&amp;A Assistant</h4><p>Get instant,<br>trusted answers</p></article>
+        <article class="use-card training"><svg class="icon" aria-hidden="true"><use href="#cap"/></svg><h4>Training</h4><p>Create training<br>materials</p></article>
+        <article class="use-card reports"><svg class="icon" aria-hidden="true"><use href="#document"/></svg><h4>Reports /<br>Knowledge Base</h4><p>Build and share<br>organizational knowledge</p></article>
+      </div>
+    </section>
+  </main>
+  <footer class="sources">Illustrative photos: <a href="https://www.clemson.edu/cecas/departments/me/academics/graduate/degrees/ms-industry.html">Clemson University</a> · <a href="https://www.danhilcontainers.com/locations">DanHil Containers</a></footer>
+  <script>
+    // Route a shared output line with arrows to only the first and last components.
+    const body = document.querySelector('.extraction-body');
+    const connections = body.querySelector('.connections');
+    const hub = body.querySelector('.ai-hub');
+    function drawConnections() {
+      const bounds = body.getBoundingClientRect();
+      const center = hub.getBoundingClientRect();
+      connections.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      const x1 = center.right - bounds.left;
+      const y1 = center.top - bounds.top + center.height * .5;
+      const fields = [...body.querySelectorAll('.field')].map(field => {
+        const rect = field.getBoundingClientRect();
+        return { x:rect.left - bounds.left - 3, y:rect.top - bounds.top + rect.height / 2 };
+      });
+      const busX = x1 + (fields[0].x - x1) * .46;
+      const color = '#63758f';
+      const ns = 'http://www.w3.org/2000/svg';
+      connections.replaceChildren();
+      const defs = document.createElementNS(ns, 'defs');
+      const marker = document.createElementNS(ns, 'marker');
+      marker.setAttribute('id', 'field-arrow'); marker.setAttribute('viewBox', '0 0 8 8');
+      marker.setAttribute('refX', '8'); marker.setAttribute('refY', '4');
+      marker.setAttribute('markerWidth', '6'); marker.setAttribute('markerHeight', '6');
+      marker.setAttribute('orient', 'auto');
+      const head = document.createElementNS(ns, 'path');
+      head.setAttribute('d', 'M 0 0 L 8 4 L 0 8 Z'); head.setAttribute('fill', color);
+      marker.append(head); defs.append(marker); connections.append(defs);
+      function route(d, directed = false) {
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none'); path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '1.6');
+        path.setAttribute('stroke-linecap', 'square'); path.setAttribute('stroke-linejoin', 'miter');
+        if (directed) path.setAttribute('marker-end', 'url(#field-arrow)');
+        connections.append(path);
+      }
+      route(`M ${x1} ${y1} H ${busX}`);
+      route(`M ${busX} ${Math.min(y1, fields[0].y)} V ${Math.max(y1, fields.at(-1).y)}`);
+      [fields[0], fields.at(-1)].forEach(field => {
+        route(`M ${busX} ${field.y} H ${field.x}`, true);
+      });
+    }
+    new ResizeObserver(drawConnections).observe(body);
+    window.addEventListener('beforeprint', drawConnections);
+    window.addEventListener('afterprint', drawConnections);
+    drawConnections();
+  </script>
+</body>
+</html>
